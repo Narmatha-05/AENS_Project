@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notification Details | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Career Services Officer</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+   <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.notifications') }}">
+          Back to Notifications
+        </a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Notification Details</div>
+          <div class="page-subtitle">View full information for the selected notification.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="card-header">
+          <div class="card-title">{{ notif["title"] }}</div>
+          <span class="link">ID: {{ notif["id"] }}</span>
+        </div>
+
+        <div class="summary">
+          <div class="summary-item">
+            <div class="summary-label">Type</div>
+            <div class="summary-value" style="font-size:14px;">{{ notif["notif_type"] }}</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Target Group</div>
+            <div class="summary-value" style="font-size:14px;">{{ notif["target_group"] }}</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Status</div>
+            <div class="summary-value" style="font-size:14px;">
+              {% if notif["status"] == "Sent" %}
+                <span class="badge badge-green">Sent</span>
+              {% else %}
+                <span class="badge badge-yellow">Scheduled</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="card" style="box-shadow:none;">
+            <div class="card-title">Timing</div>
+            <p class="page-subtitle" style="margin-top:10px;">
+              <b>Created At:</b> {{ notif["created_at"] }}<br>
+              <b>Schedule Mode:</b> {{ notif["schedule_mode"] }}<br>
+              <b>Scheduled At:</b>
+              {% if notif["scheduled_at"] %}
+                {{ notif["scheduled_at"] }}
+              {% else %}
+                -
+              {% endif %}
+            </p>
+          </div>
+
+          <div class="card" style="box-shadow:none;">
+            <div class="card-title">Message</div>
+            <p class="page-subtitle" style="margin-top:10px; white-space:pre-wrap;">
+              {{ notif["message"] }}
+            </p>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:10px;">
+          <a class="btn btn-secondary" href="{{ url_for('officer_bp.notifications') }}">Back</a>
+
+          <form action="{{ url_for('officer_bp.delete_notification', notif_id=notif['id']) }}"
+                method="POST"
+                style="display:inline;"
+                onsubmit="return confirm('Delete this notification?');">
+            <button type="submit"
+                    class="btn btn-secondary"
+                    style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+    </div>
+  </div>
+</body>
+</html>

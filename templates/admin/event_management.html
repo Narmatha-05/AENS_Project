@@ -1,0 +1,58 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Event Management | Admin{% endblock %}
+{% block page_title %}Event Management{% endblock %}
+{% block page_subtitle %}Create, edit, and delete events.{% endblock %}
+
+{% block content %}
+  <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+    <a href="{{ url_for('admin.create_event') }}" class="btn btn-primary">+ Create New Event</a>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Event Name</th>
+            <th>Date (DD-MM-YYYY)</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+          <tr>
+            <td>
+              {% if event['image_path'] %}
+                <img src="{{ url_for('static', filename='images/' + event['image_path']) }}"
+                     style="width:50px; height:50px; object-fit:cover; border-radius:10px; border:1px solid #e5e7eb;">
+              {% else %}
+                <span class="muted" style="font-size:12px;">No Image</span>
+              {% endif %}
+            </td>
+            <td style="font-weight:800;">{{ event['title'] }}</td>
+            <td>{{ event['display_date'] }}</td>
+            <td>{{ event['location'] }}</td>
+            <td><span class="badge badge-green">{{ event['status'] }}</span></td>
+            <td class="text-right">
+              <a href="{{ url_for('admin.edit_event', event_id=event['id']) }}" class="btn btn-secondary btn-small">Edit</a>
+              <a href="{{ url_for('admin.delete_event', event_id=event['id']) }}"
+                 class="btn btn-danger btn-small"
+                 onclick="return confirm('Delete this event?');">Delete</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" style="text-align:center; padding:20px; color:#6b7280;">
+              No events found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

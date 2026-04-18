@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Admin | AENS{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<body class="admin">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <!-- if you have a logo image -->
+      <!-- <img class="brand-img" src="{{ url_for('static', filename='images/aens_logo.png') }}" alt="AENS"> -->
+      <div class="brand-logo">AENS</div>
+
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Admin Panel</div>
+      </div>
+    </div>
+
+    <a class="topbar-link" href="{{ url_for('logout') }}">Logout</a>
+
+  </div>
+
+  <!-- SIDEBAR + CONTENT -->
+<div class="layout">
+  <aside class="sidebar">
+    {% include "admin/sidebar.html" %}
+  </aside>
+
+  <main class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">{% block page_title %}{% endblock %}</div>
+          <div class="page-subtitle">{% block page_subtitle %}{% endblock %}</div>
+        </div>
+      </div>
+
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+
+</body>
+</html>

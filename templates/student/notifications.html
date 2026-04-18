@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">ST</div>
+        <div class="sidebar-name">{{ current_user.full_name if current_user.is_authenticated else "Student" }}</div>
+        <div class="sidebar-role">Student</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Jobs</a>
+        <a class="nav-item" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.dashboard') }}">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Notifications</div>
+          <div class="page-subtitle">Event reminders, job alerts and mentorship updates.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-header">
+          <div class="card-title">Notification Inbox</div>
+          <span class="link">Students / All Users</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Target</th>
+            <th>Message</th>
+            <th class="text-right">Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% if notifications %}
+            {% for n in notifications %}
+            <tr>
+                <td>{{ n["created_at"] }}</td>
+                <td>{{ n["notif_type"] }}</td>
+                <td>{{ n["title"] }}</td>
+                <td>{{ n["target_group"] }}</td>
+
+                <!-- ✅ truncate long msg -->
+                <td style="max-width:380px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                {{ n["message"] }}
+                </td>
+
+                <td class="text-right">
+                <a class="btn btn-secondary btn-small"
+                    href="{{ url_for('student_bp.view_notification', notif_id=n['id']) }}">
+                    View
+                </a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+            <td colspan="6">No notifications found.</td>
+            </tr>
+        {% endif %}
+        </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+    </div>
+  </div>
+</body>
+</html>

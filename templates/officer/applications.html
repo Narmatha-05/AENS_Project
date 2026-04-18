@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Job Applications | AENS</title>
-
-  <!-- Link your CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
 </head>
 
 <body>
@@ -16,62 +13,40 @@
   <div class="topbar">
     <div class="brand">
       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
-      
       <div>
         <div class="brand-title">Alumni Engagement & Networking System</div>
         <div class="brand-subtitle">Career Services Officer</div>
       </div>
     </div>
-
-    <a href="#" class="topbar-link">Logout</a>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
   </div>
 
-  <!-- LAYOUT -->
   <div class="layout">
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
-
+    <!-- SIDEBAR -->
+   <div class="sidebar">
       <div class="sidebar-profile">
-        <div class="avatar">CS</div>
-        <div class="sidebar-name">Career Officer</div>
-        <div class="sidebar-role">Career Services Officer</div>
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
       </div>
 
-<div class="nav">
-  <a class="nav-item" href="/officer/dashboard">
-    <span class="nav-icon">🏠</span> Dashboard
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/create_job">
-    <span class="nav-icon">➕</span> Create Job
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/edit_job">
-    <span class="nav-icon">✏️</span> Edit / Remove Job
-  </a>
-
-  <a class="nav-item" href="/officer/applications">
-    <span class="nav-icon">📄</span> Applications
-  </a>
-
-  <a class="nav-item" href="/officer/mentorship_review">
-    <span class="nav-icon">🤝</span> Mentorship
-  </a>
-
-  <a class="nav-item" href="/officer/notifications">
-    <span class="nav-icon">🔔</span> Notifications
-  </a>
-</div>
-
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
 
       <div class="sidebar-footer">
-        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">
-  Back to Dashboard
-</a>
-
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">Back to Dashboard</a>
       </div>
-
     </div>
 
     <!-- CONTENT -->
@@ -81,7 +56,7 @@
         <div>
           <div class="page-title">Job Applications</div>
           <div class="page-subtitle">
-            View all job applications submitted by students and alumni. Filter by job posting and status.
+            View all job applications submitted. Filter by job posting and status.
           </div>
         </div>
       </div>
@@ -93,52 +68,57 @@
           <span class="link">Optional</span>
         </div>
 
-        <form class="form" action="#" method="get">
-          <div class="grid-2">
+        <form class="form" method="get" action="{{ url_for('officer_bp.applications') }}">
 
+          <div class="grid-2">
             <div class="form-row">
               <div class="label">Select Job Posting</div>
               <select class="input" name="job_id">
-                <option value="all">All Job Postings</option>
-                <option value="1">Software Engineer Intern (TechNova)</option>
-                <option value="2">Data Analyst (InsightLab)</option>
-                <option value="3">UI/UX Designer (PixelWorks)</option>
+                <option value="all" {% if selected_job_id == "all" %}selected{% endif %}>All Job Postings</option>
+                {% for j in jobs %}
+                  <option value="{{ j['id'] }}"
+                    {% if selected_job_id == (j['id'] | string) %}selected{% endif %}>
+                    {{ j['job_title'] }} ({{ j['company'] }})
+                  </option>
+                {% endfor %}
               </select>
             </div>
 
             <div class="form-row">
               <div class="label">Application Status</div>
               <select class="input" name="status">
-                <option value="all">All</option>
-                <option value="pending">Pending</option>
-                <option value="reviewed">Reviewed</option>
-                <option value="shortlisted">Shortlisted</option>
-                <option value="rejected">Rejected</option>
+                <option value="all" {% if selected_status == "all" %}selected{% endif %}>All</option>
+                <option value="Pending" {% if selected_status == "Pending" %}selected{% endif %}>Pending</option>
+                <option value="Reviewed" {% if selected_status == "Reviewed" %}selected{% endif %}>Reviewed</option>
+                <option value="Shortlisted" {% if selected_status == "Shortlisted" %}selected{% endif %}>Shortlisted</option>
+                <option value="Rejected" {% if selected_status == "Rejected" %}selected{% endif %}>Rejected</option>
               </select>
             </div>
-
           </div>
 
           <div class="grid-2">
             <div class="form-row">
               <div class="label">Search Applicant (Name / ID)</div>
-              <input class="input" type="text" name="search" placeholder="e.g. Narmatha / 242UC241HB">
+              <input class="input" type="text" name="search"
+                     value="{{ search_query }}"
+                     placeholder="e.g. Narmatha / 242UC241HB">
             </div>
 
             <div class="form-row">
               <div class="label">Sort By</div>
               <select class="input" name="sort">
-                <option value="latest">Latest</option>
-                <option value="oldest">Oldest</option>
-                <option value="name">Applicant Name</option>
+                <option value="latest" {% if selected_sort == "latest" %}selected{% endif %}>Latest</option>
+                <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Oldest</option>
+                <option value="name" {% if selected_sort == "name" %}selected{% endif %}>Applicant Name</option>
               </select>
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="reset" class="btn btn-secondary">Clear</button>
+            <a class="btn btn-secondary" href="{{ url_for('officer_bp.applications') }}">Clear</a>
             <button type="submit" class="btn btn-primary">Apply Filter</button>
           </div>
+
         </form>
       </div>
 
@@ -146,7 +126,7 @@
       <div class="card" style="margin-top: 14px;">
         <div class="card-header">
           <div class="card-title">Applications List</div>
-          <a class="link" href="#">Export (optional)</a>
+          <span class="link">Database</span>
         </div>
 
         <div class="table-wrap">
@@ -163,92 +143,43 @@
             </thead>
 
             <tbody>
-              <tr>
-                <td>APP-001</td>
-                <td>Narmatha</td>
-                <td>Software Engineer Intern</td>
-                <td>01 Feb 2026</td>
-                <td><span class="badge badge-yellow">Pending</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
+              {% if applications %}
+                {% for a in applications %}
+                  <tr>
+                    <td>APP-{{ "%03d"|format(a["id"]) }}</td>
+                    <td>{{ a["applicant_name"] }}</td>
+                    <td>{{ a["job_title"] }}</td>
+                    <td>{{ a["applied_date"] }}</td>
+                    <td>
+                      {% if a["status"] == "Pending" %}
+                        <span class="badge badge-yellow">Pending</span>
+                      {% elif a["status"] == "Reviewed" %}
+                        <span class="badge badge-green">Reviewed</span>
+                      {% elif a["status"] == "Shortlisted" %}
+                        <span class="badge badge-green">Shortlisted</span>
+                      {% elif a["status"] == "Rejected" %}
+                        <span class="badge" style="background: rgba(225,29,72,0.12); color:#9f1239;">Rejected</span>
+                      {% else %}
+                        <span class="badge">{{ a["status"] }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-right">
+                      <a class="btn btn-secondary btn-small"
+                        href="{{ url_for('officer_bp.view_application', app_id=a['id']) }}">
+                       View
+                      </a>
 
-              <tr>
-                <td>APP-002</td>
-                <td>Taseen</td>
-                <td>Data Analyst</td>
-                <td>31 Jan 2026</td>
-                <td><span class="badge badge-green">Reviewed</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
-
-              <tr>
-                <td>APP-003</td>
-                <td>Amir</td>
-                <td>UI/UX Designer</td>
-                <td>30 Jan 2026</td>
-                <td><span class="badge badge-green">Shortlisted</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
-
-              <tr>
-                <td>APP-004</td>
-                <td>Iman</td>
-                <td>Software Engineer Intern</td>
-                <td>29 Jan 2026</td>
-                <td><span class="badge badge-yellow">Pending</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
-
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="6">No applications found.</td>
+                </tr>
+              {% endif %}
             </tbody>
+
           </table>
-        </div>
-
-        <div class="hint">
-          Tip: In Flask, clicking “View” should open applicant details (profile, resume link, and application status update).
-        </div>
-      </div>
-
-      <!-- OPTIONAL: APPLICANT DETAIL (UI ONLY) -->
-      <div class="card" style="margin-top: 14px;">
-        <div class="card-header">
-          <div class="card-title">Applicant Details (Preview)</div>
-          <span class="link">UI only</span>
-        </div>
-
-        <div class="grid-2">
-          <div class="card" style="box-shadow:none;">
-            <div class="card-title">Basic Info</div>
-            <p class="page-subtitle" style="margin-top:10px;">
-              <b>Name:</b> Narmatha<br>
-              <b>Student ID:</b> 242UC241HB<br>
-              <b>Email:</b> narmatha@example.com<br>
-              <b>Program:</b> Software Engineering<br>
-            </p>
-          </div>
-
-          <div class="card" style="box-shadow:none;">
-            <div class="card-title">Application</div>
-            <p class="page-subtitle" style="margin-top:10px;">
-              <b>Role:</b> Software Engineer Intern<br>
-              <b>Status:</b> Pending<br>
-              <b>Submitted:</b> 01 Feb 2026<br>
-              <b>Resume:</b> (link later)<br>
-            </p>
-          </div>
-        </div>
-
-        <div class="form-actions" style="margin-top: 10px;">
-          <button class="btn btn-secondary">Reject</button>
-          <button class="btn btn-secondary">Mark Reviewed</button>
-          <button class="btn btn-primary">Shortlist</button>
         </div>
       </div>
 

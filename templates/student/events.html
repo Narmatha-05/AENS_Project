@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <!-- IMPORTANT: You said Home = Dashboard -->
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Job</a>
+        <a class="nav-item" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.dashboard') }}">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="content-header">
+        <div>
+          <div class="page-title">Upcoming Events</div>
+          <div class="page-subtitle">
+            Browse upcoming career events and register easily.
+          </div>
+        </div>
+      </div>
+
+      <!-- FLASH MESSAGES -->
+<div style="padding:18px;">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="margin-bottom:14px;">
+      {% for category, msg in messages %}
+        <div class="hint {{ category }}" style="margin-bottom:10px;">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+</div>
+
+      <!-- EVENTS LIST -->
+      <div class="card" style="margin-top:18px;">
+        <div class="card-header">
+          <div class="card-title">Events List</div>
+          <span class="link">Database</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Event</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% if events %}
+                {% for event in events %}
+                  <tr>
+                    <td>{{ event.date_str }}</td>
+
+                    <td style="font-weight:700;">
+                      <a href="{{ url_for('student_bp.event_details', event_id=event.id) }}"
+                         style="text-decoration:none; color:inherit;">
+                        {{ event.title }}
+                      </a>
+                      <div style="color:#6b7280; font-size:13px; margin-top:4px;">
+                        {{ (event.description[:60] ~ '...') if event.description else 'Career event by AENS' }}
+                      </div>
+                    </td>
+
+                    <td>{{ event.time_str }}</td>
+                    <td>{{ event.location }}</td>
+
+                    <td>
+                      {% if event.id in registered_ids %}
+                        <span class="badge badge-green">Registered</span>
+                      {% else %}
+                        <span class="badge badge-yellow">Not Registered</span>
+                      {% endif %}
+                    </td>
+
+                    <td class="text-right">
+                      <a class="btn btn-secondary btn-small"
+                         href="{{ url_for('student_bp.event_details', event_id=event.id) }}">
+                        View
+                      </a>
+
+                      {% if event.id in registered_ids %}
+                        <form method="POST"
+                              action="{{ url_for('student_bp.unregister_event', event_id=event.id) }}"
+                              style="display:inline; margin-left:8px;"
+                              onsubmit="return confirm('Cancel your registration for this event?');">
+                          <button type="submit"
+                                  class="btn btn-secondary btn-small"
+                                  style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
+                            Cancel
+                          </button>
+                        </form>
+                      {% else %}
+                        <form method="POST"
+                              action="{{ url_for('student_bp.register_event', event_id=event.id) }}"
+                              style="display:inline; margin-left:8px;"
+                              onsubmit="return confirm('Register for this event?');">
+                          <button type="submit" class="btn btn-primary btn-small">
+                            Register
+                          </button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="6">No upcoming events found.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

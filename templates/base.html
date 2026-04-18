@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title if title else "AENS Portal" }}</title>
+  <style>
+    /* Global Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    body {
+      background-color: #f4f7f9;
+      color: #333;
+    }
+
+    /* Header */
+    .mmu-header {
+      background: #6d9775;
+      padding: 15px 5%;
+      display: flex;
+      align-items: center;
+    }
+
+    .black-logo { height: 45px; margin-right: 15px; }
+    .mmu-title { font-weight: bold; font-size: 1.1rem; color: white; }
+
+    /* Hero Section with HTML Image Background */
+    .portal-hero {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero-bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      filter: brightness(0.8);
+    }
+
+    .ad-carousel {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      max-width: 850px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .carousel-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* THE BUTTON GRID (No more cards) */
+    .portal-services {
+      padding: 50px 5%;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      justify-items: center;
+    }
+
+    /* THE REAL GREEN BUTTONS */
+    .btn-portal {
+      background-color: #6d9775; /* Your specific green code */
+      color: #000000;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%; /* Makes buttons uniform in the grid */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-portal:hover {
+      background-color: #5a7d61;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-portal:active {
+      transform: translateY(0);
+    }
+
+    .portal-footer {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 0.85rem;
+    }
+
+    /* Carousel Logic Styles */
+    .carousel-slide { display: none; }
+    .carousel-slide.active { display: block; animation: fade 0.5s; }
+    @keyframes fade { from {opacity: .4} to {opacity: 1} }
+    
+    .carousel-prev, .carousel-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 15px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: rgba(0,0,0,0.3);
+      z-index: 3;
+      text-decoration: none;
+    }
+    .carousel-next { right: 0; }
+    .carousel-prev { left: 0; }
+  </style>
+</head>
+<body>
+
+<header class="mmu-header">
+  <img src="{{ url_for('static', filename='images/logo.png') }}" class="black-logo">
+  <span class="mmu-title">
+    Welcome to AENS Portal<br>
+    <small style="font-weight: normal; color: #ffffff;">Your Integrated Gateway to Alumni Engagement</small>
+  </span>
+</header>
+
+<section class="portal-hero">
+  <img src="{{ url_for('static', filename='images/campus.jpg') }}" class="hero-bg-img">
+
+  <div class="ad-carousel">
+    <div class="carousel-container">
+      <div class="carousel-slide active">
+        <img src="{{ url_for('static', filename='images/ad1.png') }}">
+      </div>
+      <div class="carousel-slide">
+        <img src="{{ url_for('static', filename='images/ad2.jpg') }}">
+      </div>
+            <div class="carousel-slide">
+        <img src="{{ url_for('static', filename='images/ad3.jpg') }}">
+      </div>
+      <a class="carousel-prev" onclick="changeSlide(-1)">&#10094;</a>
+      <a class="carousel-next" onclick="changeSlide(1)">&#10095;</a>
+    </div>
+  </div>
+</section>
+
+<section class="portal-services">
+{% block content %}
+<div style="grid-column: 1 / -1; text-align: center; margin-bottom: 20px;">
+    </div>
+
+<div class="portal-card">
+    <h3>Login</h3>
+    <p>Access your existing account and connect with your peers.</p>
+    <a href="{{ url_for('login') }}" class="btn-portal" style="margin-top: 20px;  color: white;">Login</a>
+</div>
+
+<div class="portal-card">
+    <h3>Register</h3>
+    <p>Create a new account and join our growing global community.</p>
+    <a href="{{ url_for('signup') }}" class="btn-portal" style="margin-top: 20px;  color: white;">Register</a>
+</div>
+
+<div class="portal-card">
+    <h3>Admin</h3>
+    <p>Access admin dashboard and management tools.</p>
+    <a href="{{ url_for('admin.login') }}" class="btn-portal" style="margin-top: 20px; color: white;">Admin Login</a>
+</div>
+{% endblock %}
+</section>
+
+<footer class="portal-footer">
+  © 2026 Alumni Engagement & Networking System
+</footer>
+
+<script>
+  let slideIndex = 1;
+  function showSlide(n) {
+    let slides = document.getElementsByClassName("carousel-slide");
+    if (n > slides.length) { slideIndex = 1 }
+    if (n < 1) { slideIndex = slides.length }
+    for (let i = 0; i < slides.length; i++) {
+      slides[i].classList.remove("active");
+    }
+    slides[slideIndex-1].classList.add("active");
+  }
+  function changeSlide(n) { showSlide(slideIndex += n); }
+  setInterval(() => { changeSlide(1); }, 5000);
+</script>
+
+</body>
+</html>

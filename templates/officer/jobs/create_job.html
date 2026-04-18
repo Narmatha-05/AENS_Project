@@ -8,7 +8,6 @@
   <!-- Link your CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-</head>
 
 <body>
 
@@ -23,45 +22,30 @@
       </div>
     </div>
 
-    <a href="#" class="topbar-link">Logout</a>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
   </div>
 
   <!-- LAYOUT -->
   <div class="layout">
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
-
+   <div class="sidebar">
       <div class="sidebar-profile">
-        <div class="avatar">CS</div>
-        <div class="sidebar-name">Career Officer</div>
-        <div class="sidebar-role">Career Services Officer</div>
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
       </div>
 
 <div class="nav">
-  <a class="nav-item" href="/officer/dashboard">
-    <span class="nav-icon">🏠</span> Dashboard
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/create_job">
-    <span class="nav-icon">➕</span> Create Job
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/edit_job">
-    <span class="nav-icon">✏️</span> Edit / Remove Job
-  </a>
-
-  <a class="nav-item" href="/officer/applications">
-    <span class="nav-icon">📄</span> Applications
-  </a>
-
-  <a class="nav-item" href="/officer/mentorship_review">
-    <span class="nav-icon">🤝</span> Mentorship
-  </a>
-
-  <a class="nav-item" href="/officer/notifications">
-    <span class="nav-icon">🔔</span> Notifications
-  </a>
+  <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+  <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+  <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+  <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+  <a class="nav-item" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+  <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+  <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
 </div>
 
 
@@ -76,16 +60,15 @@
     </div>
 
     <!-- CONTENT -->
-    <div class="content">
-
-      <div class="content-header">
-        <div>
-          <div class="page-title">Create Job Posting</div>
-          <div class="page-subtitle">
-            Fill in the job details and submit to publish. (Validation can be added later in Flask)
+      <div class="content page-layout">
+        <div class="content-header">
+          <div>
+            <div class="page-title">Create Job Posting</div>
+            <div class="page-subtitle">Fill in the job details and submit to publish.</div>
           </div>
         </div>
-      </div>
+
+        <div class="card job-form-card">
 
       <!-- FORM CARD -->
       <div class="card" style="margin-top: 18px;">
@@ -94,7 +77,7 @@
           <span class="link">Required fields *</span>
         </div>
 
-        <form class="form" action="#" method="post">
+        <form class="form" action="{{ url_for('officer_bp.create_job') }}" method="POST">
 
           <div class="grid-2">
             <div class="form-row">
@@ -134,6 +117,9 @@
             <div class="form-row">
               <div class="label">Salary Range</div>
               <input class="input" type="text" name="salary" placeholder="e.g. RM1200 - RM1800">
+
+
+
             </div>
           </div>
 
@@ -168,9 +154,8 @@
             </div>
           </div>
 
-          <div class="hint">
-            Tip: You can connect this form to Flask later using POST request, validate inputs, then save into database.
-          </div>
+          <div class="hint"></div>
+            
 
           <div class="form-actions">
             <button type="reset" class="btn btn-secondary">Clear</button>

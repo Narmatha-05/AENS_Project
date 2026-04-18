@@ -2,18 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AENS – Alumni Engagement System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Admin Dashboard | AENS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-    <div class="container">
-        <h1>Alumni Engagement & Networking System</h1>
-        <p>Welcome to the group project workspace</p>
+    {% include 'admin/sidebar.html' %}
 
-        <p class="note">
-            Click a role to view its workspace.
-        </p>
+    <div class="main-content">
+        <div class="page-header">
+            <div class="page-title">System Overview</div>
+            <button class="btn btn-outline" onclick="location.href='/'">Logout</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <h3>Total Users</h3>
+                <div class="number">1,245</div>
+            </div>
+            <div class="card stat-card">
+                <h3>Pending Verifications</h3>
+                <div class="number" style="color: #f1c40f;">5</div>
+            </div>
+            <div class="card stat-card">
+                <h3>Active Events</h3>
+                <div class="number">8</div>
+            </div>
+            <div class="card stat-card">
+                <h3>New Feedback</h3>
+                <div class="number">3</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="margin-bottom: 20px; font-weight: 600;">Recent System Activity</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ali bin Abu (Alumni)</td>
+                            <td>Registered Account</td>
+                            <td>10 mins ago</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Lee (Officer)</td>
+                            <td>Posted 'Tech Talk'</td>
+                            <td>1 hour ago</td>
+                            <td><span class="status-badge status-active">Published</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 </body>

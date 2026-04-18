@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentorship Request | AENS</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    .actions-wrap{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+    .status-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid #e5e7eb;border-radius:14px;background:#f9fafb}
+    .status-pill{padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
+    .st-pending{background:rgba(245,158,11,.16);color:#92400e}
+    .st-approved{background:rgba(34,197,94,.14);color:#166534}
+    .st-assigned{background:rgba(2,132,199,.14);color:#075985}
+    .st-rejected{background:rgba(225,29,72,.12);color:#9f1239}
+    .st-completed{background:rgba(16,185,129,.12);color:#065f46}
+
+    .action-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .btn-danger{background:#ef4444;color:#fff;border:none}
+    .btn-danger:hover{filter:brightness(.95)}
+
+    .box{border:1px solid #e5e7eb;border-radius:14px;background:#fff;padding:14px 16px}
+    .box-title{font-weight:800;margin-bottom:10px}
+    .mini-note{margin-top:10px;color:#6b7280;font-size:13px}
+    .grid-3-actions{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+    @media(max-width:900px){.grid-3-actions{grid-template-columns:1fr}}
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Career Services Officer</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item active" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.mentorship_review') }}">Back to Review</a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="content-header">
+        <div>
+          <div class="page-title">Mentorship Request</div>
+          <div class="page-subtitle">View request details and take action (approve, reject, assign mentor, update progress).</div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom:14px;">
+            {% for category, msg in messages %}
+              <div class="hint {{ category }}" style="margin-bottom:10px;">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% set st = (req["status"] or "Pending") %}
+
+      <div class="card" style="margin-top:18px;">
+        <div class="card-header">
+          <div class="card-title">Request Details</div>
+          <span class="link">Database</span>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+          {% if st == "Pending" %}
+            <span class="badge badge-yellow">Pending</span>
+          {% elif st == "Approved" %}
+            <span class="badge badge-green">Approved</span>
+          {% elif st == "Assigned" %}
+            <span class="badge" style="background: rgba(2,132,199,0.12); color:#075985;">Assigned</span>
+          {% elif st == "Rejected" %}
+            <span class="badge" style="background: rgba(225,29,72,0.12); color:#9f1239;">Rejected</span>
+          {% else %}
+            <span class="badge">{{ st }}</span>
+          {% endif %}
+        </div>
+
+        <!-- ✅ 3 cards row (Mentee / Requested Mentor / Assigned Mentor) -->
+        <div class="grid-3" style="margin-top:14px;">
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Mentee</div>
+            <div style="margin-top:8px;">
+              <div style="font-weight:800; font-size:18px;">{{ req["mentee_name"] or "-" }}</div>
+              <div class="hint" style="margin-top:6px;">
+                Identifier: {{ req["mentee_identifier"] or "-" }} • Role: {{ req["mentee_role"] or "Student" }}
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Requested Mentor</div>
+            <div style="margin-top:8px;">
+              <div style="font-weight:800; font-size:18px;">
+                {{ req["requested_mentor_full_name"] or req["requested_mentor_username"] or "-" }}
+              </div>
+              <div class="hint" style="margin-top:6px;">
+                Identifier: {{ req["requested_mentor_username"] or "-" }}
+              </div>
+              <div class="mini-note">This is the mentor selected by the student.</div>
+            </div>
+          </div>
+
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Mentor (Assigned)</div>
+            <div style="margin-top:8px;">
+              <div style="font-weight:800; font-size:18px;">{{ req["mentor_name"] or "-" }}</div>
+              <div class="hint" style="margin-top:6px;">
+                Identifier: {{ req["mentor_identifier"] or "-" }}
+              </div>
+              <div class="mini-note">Filled after CSO assigns a mentor.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Goals</div>
+            <div style="margin-top:8px; line-height:1.6;">{{ req["goals"] or "-" }}</div>
+          </div>
+
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Reason</div>
+            <div style="margin-top:8px; line-height:1.6;">{{ req["reason"] or "-" }}</div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top:14px;">
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Requested At</div>
+            <div style="margin-top:8px; font-weight:700;">{{ req["requested_at"] or "-" }}</div>
+          </div>
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Approved At</div>
+            <div style="margin-top:8px; font-weight:700;">{{ req["approved_at"] or "-" }}</div>
+          </div>
+          <div class="card" style="box-shadow:none; border:1px solid var(--line);">
+            <div class="card-title" style="font-size:14px;">Assigned At</div>
+            <div style="margin-top:8px; font-weight:700;">{{ req["assigned_at"] or "-" }}</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px; box-shadow:none; border:1px solid var(--line);">
+          <div class="card-title" style="font-size:14px;">Progress Note</div>
+          <div style="margin-top:8px; line-height:1.6;">{{ req["progress_note"] or "-" }}</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS CARD -->
+      <div class="card" style="margin-top:14px;">
+        <div class="card-header">
+          <div class="card-title">Actions</div>
+          <span class="link">Update Status</span>
+        </div>
+
+        <div class="actions-wrap">
+
+          <div class="status-bar">
+            <div style="font-weight:800;">Current status: {{ st }}</div>
+
+            {% if st == "Pending" %}
+              <span class="status-pill st-pending">Pending</span>
+            {% elif st == "Approved" %}
+              <span class="status-pill st-approved">Approved</span>
+            {% elif st == "Assigned" %}
+              <span class="status-pill st-assigned">Assigned</span>
+            {% elif st == "Rejected" %}
+              <span class="status-pill st-rejected">Rejected</span>
+            {% else %}
+              <span class="status-pill">{{ st }}</span>
+            {% endif %}
+          </div>
+
+          <div class="box">
+            <div class="box-title">Approve / Reject</div>
+
+            {% if st == "Pending" %}
+              <div class="action-row">
+                <form method="POST" action="{{ url_for('officer_bp.approve_mentorship', req_id=req['id']) }}">
+                  <button class="btn btn-primary btn-small" type="submit">Approve</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('officer_bp.reject_mentorship', req_id=req['id']) }}">
+                  <button class="btn btn-small btn-danger" type="submit">Reject</button>
+                </form>
+              </div>
+            {% else %}
+              <div class="mini-note">Approve/Reject is only available when the request is <b>Pending</b>.</div>
+            {% endif %}
+          </div>
+
+          <div class="box">
+            <div class="box-title">Assign Mentor</div>
+
+            {% if st == "Approved" %}
+              <form method="POST" action="{{ url_for('officer_bp.assign_mentor', req_id=req['id']) }}">
+                <div class="grid-3-actions">
+                  <div>
+                    <div class="label">Mentor Name</div>
+                    <input name="mentor_name" class="input" placeholder="e.g. Sharya Singh" required>
+                  </div>
+
+                  <div>
+                    <div class="label">Mentor Identifier (optional)</div>
+                    <input name="mentor_identifier" class="input" placeholder="e.g. ALU2025-001">
+                  </div>
+
+                  <button class="btn btn-primary btn-small" type="submit">Assign</button>
+                </div>
+
+                <div class="mini-note">Assigning will set status to <b>Assigned</b>.</div>
+              </form>
+            {% else %}
+              <div class="mini-note">Assign is available only after you <b>Approve</b> the request.</div>
+            {% endif %}
+          </div>
+
+          <div class="box">
+            <div class="box-title">Update Progress</div>
+
+            {% if st == "Assigned" %}
+              <form method="POST" action="{{ url_for('officer_bp.update_mentorship_progress', req_id=req['id']) }}">
+                <div class="label">Progress Note</div>
+                <textarea class="input" name="progress_note" rows="5" placeholder="Write progress update...">{{ req["progress_note"] or "" }}</textarea>
+
+                <div style="margin-top:10px;">
+                  <button class="btn btn-secondary btn-small" type="submit">Save Progress</button>
+                </div>
+              </form>
+            {% else %}
+              <div class="mini-note">Progress updates are available only after the request is <b>Assigned</b>.</div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer-stack">
+        <div class="footer">
+          <span>© AENS - TT9L Group 8</span>
+          <span>CSE6214 Software Engineering Fundamentals</span>
+        </div>
+
+        <div class="mmu-footer">
+          Multimedia University | Faculty of Computing & Informatics
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

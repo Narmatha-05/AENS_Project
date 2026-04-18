@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Details | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Job</a>
+        <a class="nav-item" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.events') }}">Back to Events</a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="content-header">
+        <div>
+          <div class="page-title">Event Details</div>
+          <div class="page-subtitle">View event info, register and submit feedback.</div>
+        </div>
+      </div>
+
+      <div style="padding:18px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div style="margin-bottom:14px;">
+              {% for category, msg in messages %}
+                <div class="hint {{ category }}" style="margin-bottom:10px;">
+                  {{ msg }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <div class="card" style="margin-top:18px; overflow:hidden;">
+        <div style="height:140px; background:rgba(16,185,129,0.25);"></div>
+
+        <div style="padding:18px; margin-top:-55px;">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+
+            <div>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <span class="badge" style="background:rgba(16,185,129,0.12); color:#065f46;">
+                  {{ event["date_str"] }}
+                </span>
+                <span class="badge" style="background:rgba(2,132,199,0.12); color:#075985;">
+                  {{ event["time_str"] }}
+                </span>
+              </div>
+
+              <div style="font-size:28px; font-weight:800; margin-top:10px;">
+                {{ event["title"] }}
+              </div>
+
+              <div style="color:#6b7280; margin-top:6px;">
+                <span style="margin-right:14px;">📍 {{ event["location"] }}</span>
+              </div>
+            </div>
+
+            <div style="min-width:240px;">
+              {% if is_registered %}
+                <div class="hint" style="border-left:6px solid #16a34a;">
+                  <b>Status:</b> Registered ✅
+                  <div style="margin-top:10px;">
+                    <form method="POST"
+                          action="{{ url_for('student_bp.unregister_event', event_id=event['id']) }}"
+                          onsubmit="return confirm('Cancel your registration?');">
+                      <button type="submit"
+                              class="btn btn-secondary btn-small"
+                              style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
+                        Cancel Registration
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% else %}
+                <div class="hint" style="border-left:6px solid #f59e0b;">
+                  <b>Status:</b> Not registered
+                  <div style="margin-top:10px;">
+                    <form method="POST"
+                          action="{{ url_for('student_bp.register_event', event_id=event['id']) }}"
+                          onsubmit="return confirm('Register for this event?');">
+                      <button type="submit" class="btn btn-primary btn-small">
+                        Register Now
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+
+        <div style="padding:18px; padding-top:0;">
+          <div class="card" style="margin-top:10px;">
+            <div class="card-header">
+              <div class="card-title">About this Event</div>
+              <span class="link">Database</span>
+            </div>
+            <div style="padding:16px; color:#374151; line-height:1.7;">
+              {{ event["description"] if event["description"] else "No description provided yet." }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-header">
+          <div class="card-title">Submit Event Feedback</div>
+          <span class="link">Database</span>
+        </div>
+
+        <div style="padding:16px;">
+
+          {% if is_registered %}
+            <div class="hint" style="border-left:6px solid #0284c7; margin-bottom:14px;">
+              <b>Send Feedback</b>
+              <div style="margin-top:10px;">
+                <form action="{{ url_for('student_bp.submit_event_feedback', event_id=event['id']) }}"
+                      method="POST" enctype="multipart/form-data">
+
+                  <div class="grid-2">
+                    <div class="form-row">
+                      <div class="label">Title *</div>
+                      <input class="input" name="title" required placeholder="e.g. Great session">
+                    </div>
+
+                    <div class="form-row">
+                      <div class="label">Anonymous (Optional)</div>
+                      <select class="input" name="anonymous">
+                        <option value="0" selected>No (show my username)</option>
+                        <option value="1">Yes (submit anonymously)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row" style="margin-top:10px;">
+                    <div class="label">Rating *</div>
+                    <select class="input" name="rating" required>
+                      <option value="" disabled selected>Select a rating</option>
+                      <option value="5">5 - Excellent</option>
+                      <option value="4">4 - Good</option>
+                      <option value="3">3 - Average</option>
+                      <option value="2">2 - Poor</option>
+                      <option value="1">1 - Terrible</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row" style="margin-top:10px;">
+                    <div class="label">Comments / Description *</div>
+                    <textarea class="input" name="description" required
+                              placeholder="Write your feedback details..."></textarea>
+                  </div>
+
+                  <div class="form-row" style="margin-top:10px;">
+                    <div class="label">Attachment (Optional) - PDF/DOC/JPG/PNG (Max 5MB)</div>
+                    <input class="input" type="file" name="attachment"
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          {% else %}
+            <div class="hint" style="border-left:6px solid #f59e0b; margin-bottom:14px;">
+              Register for this event to submit feedback.
+            </div>
+          {% endif %}
+
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Event</th>
+                  <th>Role</th>
+                  <th>Rating</th> <th>Comment</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% if feedback_list %}
+                  {% for f in feedback_list %}
+                    <tr>
+                      <td>FB-{{ f["id"] }}</td>
+                      <td>{{ f["event_title"] }}</td>
+                      <td>{{ f["user_role"] }}</td>
+                      <td>
+                        {% if f["rating"] is not none %}
+                          <span class="badge badge-green">{{ f["rating"] }}/5</span>
+                        {% else %}
+                          <span class="badge badge-yellow">N/A</span>
+                        {% endif %}
+                      </td>
+                      <td style="max-width: 380px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                          title="{{ f['comments'] }}">
+                        {{ f["comments"]|default("-", true) }}
+                      </td>
+                      <td>{{ f["created_at"] }}</td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center">No feedback submitted yet.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

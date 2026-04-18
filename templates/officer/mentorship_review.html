@@ -3,295 +3,296 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mentorship Management | AENS</title>
-
+  <title>Mentorship Review | AENS</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .action-cell { width: 360px; }
+    .action-top{
+      display:flex; align-items:center; justify-content:flex-end;
+      gap:10px; flex-wrap:wrap; margin-bottom:10px
+    }
+    .action-top form{ margin:0; }
+    .assign-row{
+      display:flex; justify-content:flex-end;
+      gap:10px; flex-wrap:wrap;
+    }
+    .input-mini{
+      width: 160px; min-width: 140px;
+      padding: 10px 12px; border-radius: 12px;
+    }
+    .badge-blue{ background: rgba(37,99,235,0.12); color:#1d4ed8; }
+    .badge-red{ background: rgba(225,29,72,0.12); color:#9f1239; }
+    .badge-green{ background: rgba(22,163,74,0.12); color:#166534; }
+    .badge-yellow{ background: rgba(245,158,11,0.14); color:#92400e; }
+    td { vertical-align: top; }
+
+
+    .mentor-summary{
+      margin-top:14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 16px;
+      background:#f9fafb;
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .ms-title{font-weight:900}
+    .ms-row{display:flex;gap:10px;flex-wrap:wrap}
+    .ms-pill{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;background:#fff;border:1px solid var(--line)
+    
+  }
+
+    /* PERFECTLY ALIGNED FILTER ROW */
+/* Equal width filter bars */
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* ✅ SAME WIDTH */
+  gap: 16px;
+  align-items: center;
+}
+
+/* Buttons stay on the right */
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+</style>
 </head>
 
 <body>
-
-  <!-- TOP BAR -->
   <div class="topbar">
     <div class="brand">
       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
-
       <div>
         <div class="brand-title">Alumni Engagement & Networking System</div>
         <div class="brand-subtitle">Career Services Officer</div>
       </div>
     </div>
-
-    <a href="#" class="topbar-link">Logout</a>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
   </div>
 
-  <!-- LAYOUT -->
   <div class="layout">
-
-    <!-- SIDEBAR (ONLY ONCE) -->
     <div class="sidebar">
-
       <div class="sidebar-profile">
-        <div class="avatar">CS</div>
-        <div class="sidebar-name">Career Officer</div>
-        <div class="sidebar-role">Career Services Officer</div>
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
       </div>
 
-<div class="nav">
-  <a class="nav-item" href="/officer/dashboard">
-    <span class="nav-icon">🏠</span> Dashboard
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/create_job">
-    <span class="nav-icon">➕</span> Create Job
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/edit_job">
-    <span class="nav-icon">✏️</span> Edit / Remove Job
-  </a>
-
-  <a class="nav-item" href="/officer/applications">
-    <span class="nav-icon">📄</span> Applications
-  </a>
-
-  <a class="nav-item" href="/officer/mentorship_review">
-    <span class="nav-icon">🤝</span> Mentorship
-  </a>
-
-  <a class="nav-item" href="/officer/notifications">
-    <span class="nav-icon">🔔</span> Notifications
-  </a>
-</div>
-
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item active" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
 
       <div class="sidebar-footer">
-        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">
-  Back to Dashboard
-</a>
-
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">Back to Dashboard</a>
       </div>
-
     </div>
 
-    <!-- CONTENT -->
     <div class="content">
-
       <div class="content-header">
         <div>
-          <div class="page-title">Mentorship Management</div>
-          <div class="page-subtitle">
-            Review mentorship requests, approve/reject, assign mentors, and monitor progress.
-          </div>
+          <div class="page-title">Review Mentorship Requests</div>
+          <div class="page-subtitle">Approve/Reject requests, assign mentors, and monitor progress.</div>
         </div>
       </div>
 
-      <!-- TOP STATS -->
       <div class="stats">
         <div class="card stat-card">
-          <div class="stat-label">Pending Requests</div>
-          <div class="stat-value">6</div>
-          <div class="stat-hint">Waiting for review</div>
+          <div class="stat-label">Total Requests</div>
+          <div class="stat-value">{{ total_requests }}</div>
+          <div class="stat-hint">All time</div>
         </div>
 
         <div class="card stat-card">
-          <div class="stat-label">Approved</div>
-          <div class="stat-value">9</div>
-          <div class="stat-hint">Ready for assignment</div>
+          <div class="stat-label">Pending</div>
+          <div class="stat-value">{{ pending_count }}</div>
+          <div class="stat-hint">Need action</div>
         </div>
 
         <div class="card stat-card">
-          <div class="stat-label">Assigned</div>
-          <div class="stat-value">7</div>
-          <div class="stat-hint">Mentor linked</div>
+          <div class="stat-label">Active Mentorship</div>
+          <div class="stat-value">{{ active_mentorship }}</div>
+          <div class="stat-hint">Approved/Assigned</div>
         </div>
 
         <div class="card stat-card">
-          <div class="stat-label">Active Mentorships</div>
-          <div class="stat-value">5</div>
-          <div class="stat-hint">Ongoing progress</div>
+          <div class="stat-label">Completed</div>
+          <div class="stat-value">—</div>
+          <div class="stat-hint">Optional scope</div>
         </div>
       </div>
 
-      <!-- TWO PANELS -->
-      <div class="grid-2">
-
-        <!-- PENDING REQUESTS -->
-        <div class="card" style="margin-top: 14px;">
-          <div class="card-header">
-            <div class="card-title">Pending Mentorship Requests</div>
-            <span class="link">Review</span>
-          </div>
-
-          <div class="list">
-
-            <div class="list-item">
-              <div>
-                <div class="list-title">Student: Narmatha (Software Engineering)</div>
-                <div class="list-subtitle">Interest: UI/UX | Goal: Industry mentorship</div>
-              </div>
-              <div class="list-actions">
-                <button class="btn btn-secondary btn-small">Reject</button>
-                <button class="btn btn-primary btn-small">Approve</button>
-              </div>
-            </div>
-
-            <div class="list-item">
-              <div>
-                <div class="list-title">Student: Amir (Data Track)</div>
-                <div class="list-subtitle">Interest: Data Science | Goal: Career guidance</div>
-              </div>
-              <div class="list-actions">
-                <button class="btn btn-secondary btn-small">Reject</button>
-                <button class="btn btn-primary btn-small">Approve</button>
-              </div>
-            </div>
-
-            <div class="list-item">
-              <div>
-                <div class="list-title">Student: Taseen (Networks)</div>
-                <div class="list-subtitle">Interest: Cybersecurity | Goal: Mentor matching</div>
-              </div>
-              <div class="list-actions">
-                <button class="btn btn-secondary btn-small">Reject</button>
-                <button class="btn btn-primary btn-small">Approve</button>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="hint">
-            Tip: Approve updates request status to “Approved”, then you can assign an alumni mentor.
-          </div>
-        </div>
-
-        <!-- ASSIGN MENTOR -->
-        <div class="card" style="margin-top: 14px;">
-          <div class="card-header">
-            <div class="card-title">Assign Mentor (Approved Requests)</div>
-            <span class="link">Assign</span>
-          </div>
-
-          <form class="form" action="#" method="post">
-
-            <div class="form-row">
-              <div class="label">Select Approved Request</div>
-              <select class="input" name="request_id">
-                <option value="">-- Choose request --</option>
-                <option value="REQ-101">REQ-101 | Narmatha | UI/UX</option>
-                <option value="REQ-102">REQ-102 | Amir | Data Science</option>
-                <option value="REQ-103">REQ-103 | Taseen | Cybersecurity</option>
-              </select>
-            </div>
-
-            <div class="form-row">
-              <div class="label">Available Alumni Mentors</div>
-              <select class="input" name="mentor_id">
-                <option value="">-- Choose mentor --</option>
-                <option value="M-01">Alumni: Aina | UI/UX Lead | 5 years</option>
-                <option value="M-02">Alumni: Kumar | Security Engineer | 4 years</option>
-                <option value="M-03">Alumni: Farah | Data Analyst | 3 years</option>
-              </select>
-            </div>
-
-            <div class="form-row">
-              <div class="label">Assignment Notes (Optional)</div>
-              <textarea class="input" name="assign_notes" rows="4" placeholder="Any notes for mentor/student..."></textarea>
-            </div>
-
-            <div class="form-actions">
-              <button type="reset" class="btn btn-secondary">Cancel</button>
-              <button type="submit" class="btn btn-primary">Confirm Assignment</button>
-            </div>
-
-          </form>
-
-          <div class="hint">
-            Tip: System should notify both student and mentor after successful assignment.
-          </div>
-        </div>
-
-      </div>
-
-      <!-- MONITOR PROGRESS -->
-      <div class="card" style="margin-top: 14px;">
+      <div class="card" style="margin: top 18px;">
         <div class="card-header">
-          <div class="card-title">Monitor Mentorship Progress</div>
-          <span class="link">Progress</span>
+          <div class="card-title">Filter</div>
+          <span class="link">Optional</span>
+        </div>
+
+          <form class="form" method="GET" action="{{ url_for('officer_bp.mentorship_review') }}">
+            <div class="filter-grid">
+
+              <!-- STATUS -->
+              <div class="form-row">
+                <div class="label">Status</div>
+                <select class="input" name="status">
+                  <option value="all" {% if selected_status=="all" %}selected{% endif %}>All</option>
+                  <option value="Pending" {% if selected_status=="Pending" %}selected{% endif %}>Pending</option>
+                  <option value="Approved" {% if selected_status=="Approved" %}selected{% endif %}>Approved</option>
+                  <option value="Assigned" {% if selected_status=="Assigned" %}selected{% endif %}>Assigned</option>
+                  <option value="Rejected" {% if selected_status=="Rejected" %}selected{% endif %}>Rejected</option>
+                </select>
+              </div>
+
+              <!-- SEARCH -->
+              <div class="form-row">
+                <div class="label">Search (Mentee / ID / Requested Mentor / Assigned Mentor)</div>
+                <input
+                  class="input"
+                  type="text"
+                  name="search"
+                  value="{{ search_query }}"
+                  placeholder="e.g. Vika / vika123 / Hari / hari123 / Sharya Singh"
+                >
+              </div>
+
+              <!-- ACTION BUTTONS -->
+              <div class="filter-actions">
+                <a class="btn btn-secondary" href="{{ url_for('officer_bp.mentorship_review') }}">Clear</a>
+                <button class="btn btn-primary" type="submit">Apply</button>
+              </div>
+
+            </div>
+          </form>
+      </div>
+
+      {% if mentor_summary %}
+        <div class="mentor-summary">
+          <div>
+            <div class="ms-title">Mentor Summary: {{ mentor_summary.name }}</div>
+            <div class="page-subtitle" style="margin-top:4px; font-size:12px;">
+              Identifier: {{ mentor_summary.username }}
+            </div>
+          </div>
+          <div class="ms-row">
+            <div class="ms-pill">Total: {{ mentor_summary.total }}</div>
+            <div class="ms-pill">Pending: {{ mentor_summary.pending }}</div>
+            <div class="ms-pill">Approved: {{ mentor_summary.approved }}</div>
+            <div class="ms-pill">Assigned: {{ mentor_summary.assigned }}</div>
+            <div class="ms-pill">Rejected: {{ mentor_summary.rejected }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-header">
+          <div class="card-title">Requests List</div>
+          <span class="link">Database</span>
         </div>
 
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>Record ID</th>
-                <th>Student</th>
-                <th>Mentor</th>
-                <th>Start Date</th>
+                <th>Req ID</th>
+                <th>Mentee</th>
+                <th>Goals</th>
+                <th>Requested Mentor</th>
                 <th>Status</th>
                 <th class="text-right">Action</th>
               </tr>
             </thead>
+
             <tbody>
-              <tr>
-                <td>MS-201</td>
-                <td>Narmatha</td>
-                <td>Aina</td>
-                <td>28 Jan 2026</td>
-                <td><span class="badge badge-green">Active</span></td>
-                <td class="text-right"><button class="btn btn-secondary btn-small">View</button></td>
-              </tr>
-              <tr>
-                <td>MS-202</td>
-                <td>Amir</td>
-                <td>Farah</td>
-                <td>20 Jan 2026</td>
-                <td><span class="badge badge-yellow">Inactive</span></td>
-                <td class="text-right"><button class="btn btn-secondary btn-small">View</button></td>
-              </tr>
-              <tr>
-                <td>MS-203</td>
-                <td>Taseen</td>
-                <td>Kumar</td>
-                <td>15 Jan 2026</td>
-                <td><span class="badge badge-green">Completed</span></td>
-                <td class="text-right"><button class="btn btn-secondary btn-small">View</button></td>
-              </tr>
+              {% if requests %}
+                {% for r in requests %}
+                  <tr>
+                    <td>MR-{{ r["id"] }}</td>
+
+                    <td>
+                      <div style="font-weight:800;">{{ r["mentee_name"] }}</div>
+                      <div class="page-subtitle" style="font-size:12px;">
+                        {{ r["mentee_role"] }}{% if r["mentee_identifier"] %} • {{ r["mentee_identifier"] }}{% endif %}
+                      </div>
+                    </td>
+
+                    <td style="max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      {{ r["goals"] }}
+                    </td>
+
+                    <td>
+                      <div style="font-weight:800;">
+                        {{ r["requested_mentor_full_name"] or r["requested_mentor_username"] or "-" }}
+                      </div>
+                      <div class="page-subtitle" style="font-size:12px;">
+                        {{ r["requested_mentor_username"] or "-" }}
+                      </div>
+                    </td>
+
+                    <td>
+                      {% if r["status"] == "Pending" %}
+                        <span class="badge badge-yellow">Pending</span>
+                      {% elif r["status"] == "Approved" %}
+                        <span class="badge badge-blue">Approved</span>
+                      {% elif r["status"] == "Assigned" %}
+                        <span class="badge badge-green">Assigned</span>
+                      {% elif r["status"] == "Rejected" %}
+                        <span class="badge badge-red">Rejected</span>
+                      {% else %}
+                        <span class="badge">{{ r["status"] }}</span>
+                      {% endif %}
+                    </td>
+
+                    <td class="action-cell">
+                      <div class="action-top">
+                        <a class="btn btn-secondary btn-small"
+                           href="{{ url_for('officer_bp.view_mentorship', req_id=r['id']) }}">
+                          View
+                        </a>
+
+                        {% if r["status"] == "Pending" %}
+                          <form method="POST" action="{{ url_for('officer_bp.approve_mentorship', req_id=r['id']) }}">
+                            <button type="submit" class="btn btn-primary btn-small">Approve</button>
+                          </form>
+
+                          <form method="POST" action="{{ url_for('officer_bp.reject_mentorship', req_id=r['id']) }}">
+                            <button type="submit" class="btn btn-small btn-danger">Reject</button>
+                          </form>
+                        {% endif %}
+                      </div>
+
+                      {% if r["status"] == "Approved" %}
+                        <form method="POST"
+                              action="{{ url_for('officer_bp.assign_mentor', req_id=r['id']) }}"
+                              class="assign-row">
+                          <input name="mentor_name" class="input input-mini" placeholder="Mentor name" required>
+                          <input name="mentor_identifier" class="input input-mini" placeholder="Mentor ID (opt)">
+                          <button type="submit" class="btn btn-primary btn-small">Assign</button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="6">No mentorship requests found.</td></tr>
+              {% endif %}
             </tbody>
           </table>
         </div>
-
-        <!-- NOTES BOX -->
-        <div class="card" style="margin-top: 14px; box-shadow:none;">
-          <div class="card-header">
-            <div class="card-title">Monitoring Notes (Preview)</div>
-            <span class="link">UI only</span>
-          </div>
-
-          <form class="form" action="#" method="post">
-            <div class="form-row">
-              <div class="label">Select Mentorship Record</div>
-              <select class="input" name="record_id">
-                <option value="">-- Select record --</option>
-                <option value="MS-201">MS-201 | Narmatha - Aina</option>
-                <option value="MS-202">MS-202 | Amir - Farah</option>
-                <option value="MS-203">MS-203 | Taseen - Kumar</option>
-              </select>
-            </div>
-
-            <div class="form-row">
-              <div class="label">Notes / Observations</div>
-              <textarea class="input" name="notes" rows="4" placeholder="Write monitoring notes here..."></textarea>
-            </div>
-
-            <div class="form-actions">
-              <button type="reset" class="btn btn-secondary">Clear</button>
-              <button type="submit" class="btn btn-primary">Save Notes</button>
-            </div>
-          </form>
-        </div>
-
       </div>
 
-      <!-- FOOTER -->
       <div class="footer">
         <span>© AENS - TT9L Group 8</span>
         <span>CSE6214 Software Engineering Fundamentals</span>
@@ -300,10 +301,7 @@
       <div class="mmu-footer">
         Multimedia University | Faculty of Computing & Informatics
       </div>
-
     </div>
-
   </div>
-
 </body>
 </html>

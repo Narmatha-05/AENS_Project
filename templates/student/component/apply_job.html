@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply Job | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">{{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}</div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Jobs</a>
+        <a class="nav-item" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.job_details', job_id=job['id']) }}">Back to Job</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Apply: {{ job["job_title"] }}</div>
+          <div class="page-subtitle">{{ job["company"] }}</div>
+        </div>
+      </div>
+
+      <div style="padding:18px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, msg in messages %}
+              <div class="hint {{ category }}" style="margin-bottom:10px;">{{ msg }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="card-header">
+          <div class="card-title">Application Form</div>
+          <span class="link">Student</span>
+        </div>
+
+        <div style="padding:18px;">
+          <!-- ✅ THIS IS WHERE enctype GOES -->
+          <form method="POST"
+                action="{{ url_for('student_bp.submit_job_application', job_id=job['id']) }}"
+                enctype="multipart/form-data">
+
+            <div class="form-row">
+              <div class="label">Full Name *</div>
+              <input class="input" type="text" name="applicant_name" required>
+            </div>
+
+            <div class="form-row">
+              <div class="label">Student ID *</div>
+              <input class="input" type="text" name="applicant_identifier" required>
+            </div>
+
+            <div class="form-row">
+              <div class="label">Resume (PDF/DOC/DOCX)</div>
+              <input class="input" type="file" name="resume" accept=".pdf,.doc,.docx">
+              <div class="hint" style="margin-top:8px;">Optional. If uploaded, CSO can view it in Application Details.</div>
+            </div>
+
+            <div class="form-actions" style="justify-content:flex-end;">
+              <button type="submit" class="btn btn-primary">Submit Application</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+      <div class="mmu-footer">Multimedia University | Faculty of Computing & Informatics</div>
+
+    </div>
+  </div>
+</body>
+</html>

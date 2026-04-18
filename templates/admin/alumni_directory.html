@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alumni Directory | Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'admin/sidebar.html' %}
+    <div class="main-content">
+        <div class="page-header">
+            <div class="page-title">Alumni Directory</div>
+            <input type="text" class="form-control" placeholder="Search alumni..." style="width: 300px;">
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Class of</th>
+                            <th>Degree</th>
+                            <th>Current Job</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Jessica Wong</td>
+                            <td>2020</td>
+                            <td>Data Science</td>
+                            <td>Analyst at Grab</td>
+                            <td>
+                                <button class="btn btn-outline">View Profile</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

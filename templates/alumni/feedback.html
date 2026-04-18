@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Feedback | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Alumni</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('alumni_bp.profile') }}"><span class="nav-icon">👤</span> Mentor Profile</a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.mentorship_requests') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item active" href="{{ url_for('alumni_bp.feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Submit Event Feedback</div>
+          <div class="page-subtitle">Creates records in <b>event_feedback</b> for CSO to review.</div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom:14px;">
+            {% for category, msg in messages %}
+              <div class="hint {{ category }}" style="margin-bottom:10px;">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">New Feedback</div>
+          <span class="link">Database</span>
+        </div>
+
+        <form class="form" method="POST" action="{{ url_for('alumni_bp.submit_feedback') }}" style="padding:16px;">
+          <div class="form-row">
+            <div class="label">Select Event</div>
+            <select class="input" name="event_id" required>
+              <option value="">-- Choose --</option>
+              {% for e in events %}
+                <option value="{{ e['id'] }}">{{ e['title'] }} {% if e['date_str'] %}({{ e['date_str'] }}){% endif %}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="label">Title</div>
+            <input class="input" name="title" placeholder="e.g. Great networking session" required />
+          </div>
+
+          <div class="form-row">
+            <div class="label">Description</div>
+            <textarea class="input" name="description" rows="5" placeholder="Write your feedback..." required></textarea>
+          </div>
+
+          <div class="form-row" style="display:flex; gap:10px; align-items:center;">
+            <input type="checkbox" name="is_anonymous" value="1" />
+            <div style="color:#6b7280; font-size:13px;">Submit as anonymous</div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Submit Feedback</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-header">
+          <div class="card-title">My Feedback</div>
+          <span class="link">History</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Event</th>
+                <th>Title</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if my_feedback %}
+                {% for f in my_feedback %}
+                  <tr>
+                    <td>FB-{{ f["id"] }}</td>
+                    <td>{{ f["event_title"] }}</td>
+                    <td>{{ f["title"] }}</td>
+                    <td>{{ f["created_at"] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4">No feedback submitted yet.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+      <div class="mmu-footer">Multimedia University | Faculty of Computing & Informatics</div>
+    </div>
+  </div>
+
+</body>
+</html>

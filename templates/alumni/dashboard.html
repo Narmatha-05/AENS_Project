@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alumni Dashboard | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Alumni</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">AL</div>
+        <div class="sidebar-name">
+          {{ current_user.full_name if current_user.is_authenticated else "Alumni" }}
+        </div>
+        <div class="sidebar-role">Alumni</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item active" href="{{ url_for('alumni_bp.dashboard') }}">
+          <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.notifications') }}">
+          <span class="nav-icon">🔔</span> Notifications
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.mentorship_requests') }}">
+          <span class="nav-icon">🤝</span> Mentorship
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.events') }}">
+          <span class="nav-icon">📅</span> Events
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.profile') }}">
+          <span class="nav-icon">👤</span> My Profile
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.jobs') }}">
+          <span class="nav-icon">💼</span> Jobs
+        </a>
+      </div>
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Alumni Dashboard</div>
+          <div class="page-subtitle">
+            Overview of your engagement, mentorship, events, jobs and notifications.
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="grid-4" style="margin-top:18px;">
+        <div class="card">
+          <div class="card-title">Upcoming Events</div>
+          <div style="font-size:34px;font-weight:800;margin-top:8px;">
+            {{ upcoming_events_count }}
+          </div>
+          <div class="hint" style="margin-top:10px;">Events you can join</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">My Events</div>
+          <div style="font-size:34px;font-weight:800;margin-top:8px;">
+            {{ my_events_count }}
+          </div>
+          <div class="hint" style="margin-top:10px;">Registered events</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Mentorship Requests</div>
+          <div style="font-size:34px;font-weight:800;margin-top:8px;">
+            {{ mentorship_requests }}
+          </div>
+          <div class="hint" style="margin-top:10px;">From students</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">New Notifications</div>
+          <div style="font-size:34px;font-weight:800;margin-top:8px;">
+            {{ new_notif_count }}
+          </div>
+          <div class="hint" style="margin-top:10px;">System updates</div>
+        </div>
+      </div>
+
+      <!-- SECOND ROW -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Notifications</div>
+            <span class="link">Placeholder</span>
+          </div>
+          <div class="hint">No notifications yet.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quick Actions</div>
+            <span class="link">Shortcuts</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+            <a class="btn btn-primary" href="#">View Events</a>
+            <a class="btn btn-primary" href="#">Browse Jobs</a>
+            <a class="btn btn-primary" href="#">Mentorship Requests</a>
+            <a class="btn btn-secondary" href="#">Notifications</a>
+          </div>
+
+          <div class="hint" style="margin-top:12px;">
+            Tip: Respond to mentorship requests to support students.
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+    </div>
+  </div>
+</body>
+</html>

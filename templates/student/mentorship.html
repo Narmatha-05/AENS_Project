@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentorship | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span>Dashboard</a>
+        <a class="nav-item" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Job</a>
+        <a class="nav-item" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.dashboard') }}">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="content-header">
+        <div>
+          <div class="page-title">Mentorship</div>
+          <div class="page-subtitle">
+            Browse alumni mentors and request mentorship. Track request status.
+          </div>
+        </div>
+      </div>
+
+      <!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="margin-bottom:14px;">
+      {% for category, msg in messages %}
+        <div class="hint {{ category }}" style="margin-bottom:10px;">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- MENTORS LIST -->
+<div class="card" style="margin-top: 18px;">
+  <div class="card-header">
+    <div class="card-title">Available Mentors</div>
+    <span class="link">Database</span>
+  </div>
+
+  {% if mentors %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Mentor</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in mentors %}
+            {% set st = status_map.get(m["id"]) %}
+            <tr>
+              <!-- Mentor Info -->
+              <td>
+                <div style="font-weight:700;">
+                  {{ m["full_name"] or m["username"] }}
+                </div>
+                <div style="color:#6b7280; font-size:13px;">
+                  {{ m["headline"]
+                     if m["headline"]
+                     else (m["bio"][:40] ~ "..." if m["bio"] else "Alumni Mentor") }}
+                </div>
+              </td>
+
+              <!-- Role -->
+              <td>{{ m["role"] }}</td>
+
+              <!-- Status -->
+              <td>
+                {% if st == "Pending" %}
+                  <span class="badge badge-yellow">Pending</span>
+
+                {% elif st == "Approved" %}
+                  <span class="badge" style="background: rgba(37,99,235,0.12); color:#1d4ed8;">
+                    Approved
+                  </span>
+
+                {% elif st == "Assigned" %}
+                  <span class="badge badge-green">Assigned</span>
+
+                {% elif st == "Accepted" %}
+                  <span class="badge badge-green">Accepted</span>
+
+                {% elif st == "Rejected" %}
+                  <span class="badge" style="background: rgba(225,29,72,0.12); color:#9f1239;">
+                    Rejected
+                  </span>
+
+                {% else %}
+                  <span class="badge" style="background: rgba(2,132,199,0.12); color:#075985;">
+                    Not Requested
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Actions -->
+              <td class="text-right">
+                <a class="btn btn-secondary btn-small"
+                  href="{{ url_for('student_bp.mentor_details', mentor_id=m['id']) }}">
+                  View
+                </a>
+
+                {% if st is none %}
+                  <form method="POST"
+                        action="{{ url_for('student_bp.request_mentor', mentor_id=m['id']) }}"
+                        style="display:inline;">
+                    <button type="submit"
+                            class="btn btn-primary btn-small"
+                            onclick="return confirm('Send mentorship request to this mentor?');">
+                      Request
+                    </button>
+                  </form>
+
+                {% elif st == "Pending" %}
+                  <form method="POST"
+                        action="{{ url_for('student_bp.cancel_request', mentor_id=m['id']) }}"
+                        style="display:inline;">
+                    <button type="submit"
+                            class="btn btn-secondary btn-small"
+                            onclick="return confirm('Cancel your mentorship request?');">
+                      Cancel
+                    </button>
+                  </form>
+
+                {% elif st in ["Approved", "Assigned", "Accepted"] %}
+                  <button class="btn btn-secondary btn-small" disabled>Requested</button>
+
+                {% elif st == "Rejected" %}
+                  <form method="POST"
+                        action="{{ url_for('student_bp.request_mentor', mentor_id=m['id']) }}"
+                        style="display:inline;">
+                    <button type="submit"
+                            class="btn btn-primary btn-small"
+                            onclick="return confirm('Send mentorship request again?');">
+                      Request Again
+                    </button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="hint">No mentors available yet.</div>
+  {% endif %}
+</div>
+
+      <!-- FOOTER -->
+        <div class="footer-stack">
+          <div class="footer">
+            <span>© AENS - TT9L Group 8</span>
+            <span>CSE6214 Software Engineering Fundamentals</span>
+          </div>
+
+          <div class="mmu-footer">
+            Multimedia University | Faculty of Computing & Informatics
+          </div>
+        </div>
+
+  </div>
+
+</body>
+</html>

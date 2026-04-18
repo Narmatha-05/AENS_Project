@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">ST</div>
+        <div class="sidebar-name">{{ current_user.full_name if current_user.is_authenticated else "Student" }}</div>
+        <div class="sidebar-role">Student</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Jobs</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.dashboard') }}">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="content-header">
+        <div>
+          <div class="page-title">My Profile</div>
+          <div class="page-subtitle">Manage your information and view your activity.</div>
+        </div>
+      </div>
+
+      <!-- PROFILE HEADER CARD -->
+      <div class="card profile-card" style="margin-top:14px;">
+        <div class="profile-banner"></div>
+
+        <div class="profile-header">
+          <div class="profile-avatar">
+            {{ (user.username[0] if user.username else 'S') | upper }}
+          </div>
+
+          <div class="profile-meta">
+            <div class="profile-name">{{ user.full_name if user.full_name else user.username }}</div>
+            <div class="profile-headline">{{ user.headline if user.headline else "No headline yet." }}</div>
+            <div class="profile-sub">
+              📍 {{ user.location if user.location else "Location not set" }}
+              {% if user.email %} • <span class="link">{{ user.email }}</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn btn-secondary btn-small" onclick="openEditModal()">✏️ Edit Profile</button>
+          </div>
+        </div>
+
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-value">{{ event_count }}</div>
+            <div class="profile-stat-label">Events Joined</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value">{{ job_count }}</div>
+            <div class="profile-stat-label">Jobs Applied</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value">{{ mentor_count }}</div>
+            <div class="profile-stat-label">Mentors</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value">{{ posts|length }}</div>
+            <div class="profile-stat-label">Posts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BODY GRID (LIKE CSO: left bigger / right smaller or vice versa) -->
+      <div class="grid-2" style="margin-top:14px;">
+
+        <!-- LEFT -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Skills</div>
+            <span class="link">Profile</span>
+          </div>
+
+          <div class="skill-wrap">
+            {% if user.skills %}
+              {% for skill in user.skills.split(',') %}
+                <span class="skill-pill">{{ skill.strip() }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="hint">No skills added yet.</div>
+            {% endif %}
+          </div>
+
+          <div style="margin-top:14px;">
+            <div class="card-header" style="margin-bottom:8px;">
+              <div class="card-title">About</div>
+            </div>
+            <div class="profile-about">
+              {{ user.bio if user.bio else "No bio added yet." }}
+            </div>
+          </div>
+
+          {% if user.phone or user.address %}
+          <div style="margin-top:14px;">
+            <div class="card-header" style="margin-bottom:8px;">
+              <div class="card-title">Contact Details</div>
+            </div>
+            <div class="profile-about">
+              {% if user.phone %}<div>📞 {{ user.phone }}</div>{% endif %}
+              {% if user.address %}<div>🏠 {{ user.address }}</div>{% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- RIGHT -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Activity</div>
+            <span class="link">Posts</span>
+          </div>
+
+          {% if posts and posts|length > 0 %}
+            <div class="list">
+              {% for post in posts %}
+                <div class="list-item">
+                  <div>
+                    <div class="list-title">{{ user.username }}</div>
+                    <div class="list-subtitle">
+                      {{ post.timestamp.strftime('%d %b %Y') if post.timestamp else '' }}
+                    </div>
+                    <div style="margin-top:6px; color:#374151; font-size:13px;">
+                      {{ post.content }}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="hint">No posts yet.</div>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="card-header" style="margin-bottom:10px;">
+        <div class="card-title">Edit Profile</div>
+        <button class="icon-btn" onclick="closeEditModal()">✖</button>
+      </div>
+
+      <form class="form" action="{{ url_for('student_bp.edit_profile') }}" method="POST">
+        <div class="grid-2" style="grid-template-columns:1fr 1fr;">
+          <div class="form-row">
+            <label class="label">Full Name</label>
+            <input class="input" type="text" name="full_name" value="{{ user.full_name or '' }}" placeholder="John Doe">
+          </div>
+          <div class="form-row">
+            <label class="label">Email</label>
+            <input class="input" type="email" name="email" value="{{ user.email or '' }}" placeholder="john@example.com">
+          </div>
+        </div>
+
+        <div class="grid-2" style="grid-template-columns:1fr 1fr;">
+          <div class="form-row">
+            <label class="label">Phone (Numbers only)</label>
+            <input class="input" type="text" name="phone" value="{{ user.phone or '' }}"
+                   oninput="this.value=this.value.replace(/[^0-9]/g,'')" inputmode="numeric" placeholder="60123456789">
+          </div>
+          <div class="form-row">
+            <label class="label">Location (City)</label>
+            <input class="input" type="text" name="location" value="{{ user.location or '' }}" placeholder="Cyberjaya">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="label">Full Address</label>
+          <input class="input" type="text" name="address" value="{{ user.address or '' }}" placeholder="Full address">
+        </div>
+
+        <div class="form-row">
+          <label class="label">Headline</label>
+          <input class="input" type="text" name="headline" value="{{ user.headline or '' }}" placeholder="Software Engineering Student">
+        </div>
+
+        <div class="form-row">
+          <label class="label">Skills (comma separated)</label>
+          <input class="input" type="text" name="skills" value="{{ user.skills or '' }}" placeholder="Python, HTML, SQL">
+        </div>
+
+        <div class="form-row">
+          <label class="label">Bio</label>
+          <textarea class="input" name="bio" rows="3">{{ user.bio or '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openEditModal(){ document.getElementById('editModal').style.display='block'; }
+    function closeEditModal(){ document.getElementById('editModal').style.display='none'; }
+    window.onclick = function(e){
+      const modal = document.getElementById('editModal');
+      if(e.target === modal){ closeEditModal(); }
+    }
+  </script>
+
+</body>
+</html>

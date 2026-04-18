@@ -1,0 +1,51 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Manage Jobs | Admin{% endblock %}
+{% block page_title %}Job Opportunities{% endblock %}
+{% block page_subtitle %}Review and manage job postings submitted by users.{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Job Title</th>
+            <th>Company</th>
+            <th>Posted By</th>
+            <th>Status</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+          <tr>
+            <td style="font-weight:800;">{{ job['title'] }}</td>
+            <td>{{ job['company'] }}</td>
+            <td>{{ job['posted_by'] }}</td>
+            <td>
+              {% if job['status'] == 'Active' %}
+                <span class="badge badge-green">Active</span>
+              {% else %}
+                <span class="badge badge-yellow">{{ job['status'] }}</span>
+              {% endif %}
+            </td>
+            <td class="text-right">
+              <a class="btn btn-secondary btn-small" href="{{ url_for('admin.view_job', job_id=job['id']) }}">View</a>
+              <a class="btn btn-danger btn-small"
+                 href="{{ url_for('admin.delete_job', job_id=job['id']) }}"
+                 onclick="return confirm('Delete this job posting?');">Delete</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" style="text-align:center; padding:20px; color:#6b7280;">
+              No job postings found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

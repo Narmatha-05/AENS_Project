@@ -4,79 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notifications | AENS</title>
-
-  <!-- Link your CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
 </head>
 
 <body>
-
   <!-- TOP BAR -->
   <div class="topbar">
     <div class="brand">
       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
-
       <div>
         <div class="brand-title">Alumni Engagement & Networking System</div>
         <div class="brand-subtitle">Career Services Officer</div>
       </div>
     </div>
-
-    <a href="#" class="topbar-link">Logout</a>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
   </div>
 
-  <!-- LAYOUT -->
   <div class="layout">
-
     <!-- SIDEBAR -->
-    <div class="sidebar">
-
+   <div class="sidebar">
       <div class="sidebar-profile">
-        <div class="avatar">CS</div>
-        <div class="sidebar-name">Career Officer</div>
-        <div class="sidebar-role">Career Services Officer</div>
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
       </div>
 
-<div class="nav">
-  <a class="nav-item" href="/officer/dashboard">
-    <span class="nav-icon">🏠</span> Dashboard
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/create_job">
-    <span class="nav-icon">➕</span> Create Job
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/edit_job">
-    <span class="nav-icon">✏️</span> Edit / Remove Job
-  </a>
-
-  <a class="nav-item" href="/officer/applications">
-    <span class="nav-icon">📄</span> Applications
-  </a>
-
-  <a class="nav-item" href="/officer/mentorship_review">
-    <span class="nav-icon">🤝</span> Mentorship
-  </a>
-
-  <a class="nav-item" href="/officer/notifications">
-    <span class="nav-icon">🔔</span> Notifications
-  </a>
-</div>
-
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item active" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
 
       <div class="sidebar-footer">
-        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">
-  Back to Dashboard
-</a>
-
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">Back to Dashboard</a>
       </div>
-
     </div>
 
     <!-- CONTENT -->
     <div class="content">
-
       <div class="content-header">
         <div>
           <div class="page-title">Career Notifications</div>
@@ -86,57 +57,69 @@
         </div>
       </div>
 
-      <!-- SEND NOTIFICATION (FORM) -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div style="margin-top:14px;">
+            {% for msg in messages %}
+              <div class="hint" style="margin-bottom:10px;">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- SEND NOTIFICATION -->
       <div class="card" style="margin-top: 18px;">
         <div class="card-header">
           <div class="card-title">Send Notification</div>
-          <span class="link">Trigger</span>
+          <span class="link">Database</span>
         </div>
 
-        <form class="form" action="#" method="post">
-
+        <form class="form" action="{{ url_for('officer_bp.send_notification') }}" method="POST">
           <div class="grid-2">
             <div class="form-row">
               <div class="label">Notification Type</div>
-              <select class="input" name="type">
-                <option value="job_alert">Job Alert</option>
-                <option value="mentorship_update">Mentorship Update</option>
-                <option value="career_announcement">Career Announcement</option>
+              <select class="input" name="notif_type" required>
+                <option value="Job Alert">Job Alert</option>
+                <option value="Mentorship Update">Mentorship Update</option>
+                <option value="Career Announcement">Career Announcement</option>
               </select>
             </div>
 
             <div class="form-row">
               <div class="label">Target Group</div>
-              <select class="input" name="target">
-                <option value="students">Students</option>
-                <option value="alumni">Alumni</option>
-                <option value="all">All Users</option>
+              <select class="input" name="target_group" required>
+                <option value="Students">Students</option>
+                <option value="Alumni">Alumni</option>
+                <option value="All Users">All Users</option>
               </select>
             </div>
           </div>
 
           <div class="form-row">
             <div class="label">Title *</div>
-            <input class="input" type="text" name="title" placeholder="e.g. New Internship: Software Engineer Intern" required>
+            <input class="input" type="text" name="title" required placeholder="e.g. New Internship Opportunity">
           </div>
 
           <div class="form-row">
             <div class="label">Message *</div>
-            <textarea class="input" name="message" rows="5" placeholder="Write your message here..." required></textarea>
+            <textarea class="input" name="message" required placeholder="Write your message here..."></textarea>
           </div>
 
           <div class="grid-2">
             <div class="form-row">
-              <div class="label">Schedule (Optional)</div>
-              <select class="input" name="schedule">
+              <div class="label">Schedule</div>
+              <select class="input" name="schedule" id="scheduleMode">
                 <option value="now">Send Now</option>
-                <option value="later">Schedule for Later (UI only)</option>
+                <option value="later">Schedule for Later</option>
               </select>
             </div>
 
             <div class="form-row">
-              <div class="label">Date/Time (Optional)</div>
-              <input class="input" type="datetime-local" name="schedule_time">
+              <div class="label">Date/Time (only for scheduled)</div>
+              <input class="input" type="datetime-local" name="schedule_time" id="scheduleTime" disabled>
+              <div class="page-subtitle" style="margin-top:6px;">
+                If you choose <b>Send Now</b>, this will stay empty.
+              </div>
             </div>
           </div>
 
@@ -144,15 +127,10 @@
             <button type="reset" class="btn btn-secondary">Clear</button>
             <button type="submit" class="btn btn-primary">Send Notification</button>
           </div>
-
         </form>
-
-        <div class="hint">
-          Tip: In Flask, store notifications in database and send to the selected user group (students/alumni/all).
-        </div>
       </div>
 
-      <!-- SENT NOTIFICATIONS HISTORY -->
+      <!-- HISTORY -->
       <div class="card" style="margin-top: 14px;">
         <div class="card-header">
           <div class="card-title">Notification History</div>
@@ -171,45 +149,46 @@
                 <th class="text-right">Action</th>
               </tr>
             </thead>
+
             <tbody>
-              <tr>
-                <td>02 Feb 2026</td>
-                <td>Job Alert</td>
-                <td>Students</td>
-                <td>New Internship Opportunity</td>
-                <td><span class="badge badge-green">Sent</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
+              {% if notifications %}
+                {% for n in notifications %}
+                  <tr>
+                    <td>{{ n["created_at"] }}</td>
+                    <td>{{ n["notif_type"] }}</td>
+                    <td>{{ n["target_group"] }}</td>
+                    <td>{{ n["title"] }}</td>
+                    <td>
+                      {% if n["status"] == "Sent" %}
+                        <span class="badge badge-green">Sent</span>
+                      {% else %}
+                        <span class="badge badge-yellow">Scheduled</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-right">
+                      <a class="btn btn-secondary btn-small"
+                         href="{{ url_for('officer_bp.view_notification', notif_id=n['id']) }}">
+                        View
+                      </a>
 
-              <tr>
-                <td>01 Feb 2026</td>
-                <td>Mentorship Update</td>
-                <td>Student</td>
-                <td>Mentor Assigned Successfully</td>
-                <td><span class="badge badge-green">Sent</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
-
-              <tr>
-                <td>31 Jan 2026</td>
-                <td>Career Announcement</td>
-                <td>All Users</td>
-                <td>Career Talk Registration Open</td>
-                <td><span class="badge badge-yellow">Scheduled</span></td>
-                <td class="text-right">
-                  <button class="btn btn-secondary btn-small">View</button>
-                </td>
-              </tr>
+                      <form action="{{ url_for('officer_bp.delete_notification', notif_id=n['id']) }}"
+                            method="POST"
+                            style="display:inline;"
+                            onsubmit="return confirm('Delete this notification?');">
+                        <button type="submit"
+                                class="btn btn-secondary btn-small"
+                                style="border:1px solid rgba(225,29,72,0.25); color:#e11d48; margin-left:8px;">
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="6">No notifications yet.</td></tr>
+              {% endif %}
             </tbody>
           </table>
-        </div>
-
-        <div class="hint">
-          Tip: Lecturer proof — show history page + send form screenshot (Part III testing evidence).
         </div>
       </div>
 
@@ -222,9 +201,30 @@
       <div class="mmu-footer">
         Multimedia University | Faculty of Computing & Informatics
       </div>
-
     </div>
   </div>
+
+  <!-- Small JS to enable/disable datetime field -->
+  <script>
+    (function () {
+      const mode = document.getElementById("scheduleMode");
+      const time = document.getElementById("scheduleTime");
+
+      function sync() {
+        if (mode.value === "later") {
+          time.disabled = false;
+          time.required = true;
+        } else {
+          time.disabled = true;
+          time.required = false;
+          time.value = "";
+        }
+      }
+
+      mode.addEventListener("change", sync);
+      sync();
+    })();
+  </script>
 
 </body>
 </html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Alumni Jobs | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Alumni</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">AL</div>
+        <div class="sidebar-name">{{ current_user.full_name }}</div>
+        <div class="sidebar-role">Alumni</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item active" href="{{ url_for('alumni_bp.dashboard') }}">
+          <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.notifications') }}">
+          <span class="nav-icon">🔔</span> Notifications
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.mentorship_requests') }}">
+          <span class="nav-icon">🤝</span> Mentorship
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.events') }}">
+          <span class="nav-icon">📅</span> Events
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.profile') }}">
+          <span class="nav-icon">👤</span> My Profile
+        </a>
+        <a class="nav-item" href="{{ url_for('alumni_bp.jobs') }}">
+          <span class="nav-icon">💼</span> Jobs
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('alumni_bp.dashboard') }}">
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Job Listings</div>
+          <div class="page-subtitle">Jobs posted by alumni</div>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('alumni_bp.create_job') }}">
+          + Post Job
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Deadline</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if jobs %}
+                {% for j in jobs %}
+                  <tr>
+                    <td>{{ j["job_title"] }}</td>
+                    <td>{{ j["company"] }}</td>
+                    <td>{{ j["location"] }}</td>
+                    <td>{{ j["deadline"] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="4" class="hint">No job postings yet.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

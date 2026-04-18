@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Feedback | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Career Services Officer</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="content-header">
+        <div>
+          <div class="page-title">Event Feedback</div>
+          <div class="page-subtitle">
+            View feedback submitted by Students and Alumni for career events.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 18px;">
+        <div class="card-header">
+          <div class="card-title">Filter Feedback</div>
+          <span class="link">Database</span>
+        </div>
+
+        <form class="form" method="GET" action="{{ url_for('officer_bp.view_event_feedback') }}">
+          <div class="grid-2">
+            <div class="form-row">
+              <div class="label">Event</div>
+              <select class="input" name="event">
+                <option value="all" {% if selected_event == "all" %}selected{% endif %}>All Events</option>
+                {% for e in events %}
+                  <option value="{{ e }}" {% if selected_event == e %}selected{% endif %}>{{ e }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="label">Role</div>
+              <select class="input" name="role">
+                <option value="all" {% if selected_role == "all" %}selected{% endif %}>All Roles</option>
+                <option value="Student" {% if selected_role == "Student" %}selected{% endif %}>Student</option>
+                <option value="Alumni" {% if selected_role == "Alumni" %}selected{% endif %}>Alumni</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+             <div class="form-row" style="grid-column: span 2;">
+              <div class="label">Search (Event / Title / Comment)</div>
+              <input class="input" type="text" name="search" value="{{ search_query }}" placeholder="e.g. Great Session...">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ url_for('officer_bp.view_event_feedback') }}">Clear</a>
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+          </div>
+        </form>
+
+      <div class="card" style="margin-top: 14px;">
+        <div class="card-header">
+          <div class="card-title">Feedback List</div>
+          <span class="link">Record</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Event</th>
+                <th>Role</th>
+                <th>Rating</th> <th>Feedback Title</th>
+                <th>Comment</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% if feedback_list %}
+              {% for f in feedback_list %}
+                <tr>
+                  <td>FB-{{ f["id"] }}</td>
+                  <td>{{ f["event_title"] }}</td>
+                  <td>{{ f["user_role"] }}</td>
+                  
+                  <td>
+                    {% if f["rating"] %}
+                      <span class="badge badge-green">{{ f["rating"] }}/5</span>
+                    {% else %}
+                      <span class="badge badge-yellow">N/A</span>
+                    {% endif %}
+                  </td>
+
+                  <td style="font-weight: 500;">
+                      {{ f["title"] }}
+                  </td>
+                  
+                  <td style="max-width:380px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ f['comments'] }}">
+                    {{ f["comments"] if f["comments"] else "-" }}
+                  </td>
+                  <td>{{ f["created_at"] }}</td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center">No feedback submitted yet.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

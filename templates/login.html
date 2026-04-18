@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | AENS</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* TOP SECTION: LARGER PROMINENCE */
+        .auth-container {
+            display: flex;
+            height: 75vh; /* Increased height to take more space */
+            width: 100%;
+        }
+
+        /* Left Green Panel */
+        .auth-left {
+            flex: 1.2; /* Takes slightly more horizontal space than the right */
+            background-color: #76a07b; 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px;
+        }
+
+        .auth-logo {
+            width: 140px; /* Slightly larger logo */
+            margin-bottom: 25px;
+        }
+
+        .auth-left h1 {
+            font-size: 2.2rem; /* Larger text */
+            line-height: 1.2;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hashtag {
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+
+        /* Right Login Panel */
+        .auth-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centered the form in its half */
+        }
+
+        .login-box {
+            width: 380px; /* Wider input fields */
+        }
+
+        .login-box h2 {
+            color: #76a07b;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            background-color: #f2f2f2;
+            border: none;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn-login {
+            background-color: #76a07b;
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.8rem;
+            color: #76a07b;
+            text-decoration: none;
+        }
+
+        .signup-prompt {
+            margin-top: 35px;
+            font-size: 0.9rem;
+        }
+
+        .signup-prompt a {
+            color: #76a07b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* MIDDLE SECTION: SMALLER BANNER */
+        .banner-container {
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            background-color: #fff;
+        }
+
+        .banner-frame {
+            width: 60%; /* Reduced from 85% to make it smaller */
+            max-width: 700px;
+            border: 1px solid #e8e8e8;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .banner-frame img {
+            width: 100%;
+            display: block;
+        }
+
+        /* FOOTER SECTION */
+        .footer {
+            border-top: 1px solid #eee;
+            padding: 40px 20px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .footer-nav {
+            margin-bottom: 20px;
+        }
+
+        .footer-nav a {
+            text-decoration: none;
+            color: #777;
+            margin: 0 30px;
+            font-size: 0.85rem;
+        }
+
+        .footer-logo {
+            width: 150px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .footer-info {
+            font-size: 0.7rem;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="auth-logo" alt="AENS Logo">
+            <h1>Alumni Engagement &<br>Networking System</h1>
+            <p class="hashtag">#Our Legacy, Your Future</p>
+        </div>
+
+        <div class="auth-right">
+            <div class="login-box">
+                <h2>Log In</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, msg in messages %}
+                      <div style="color: red; margin-bottom: 15px; font-size: 0.8rem;">{{ msg }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" name="username" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-login">Log In</button>
+                        <a href="#" class="forgot-link">Forgot Password?</a>
+                    </div>
+                </form>
+
+                <p class="signup-prompt">
+                    Don’t have an account? <a href="{{ url_for('signup') }}">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="banner-container">
+        <div class="banner-frame">
+            <img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="Promo Banner">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <nav class="footer-nav">
+            <a href="#">About</a>
+            <a href="#">FAQ</a>
+            <a href="#">Contact</a>
+        </nav>
+
+        <img src="{{ url_for('static', filename='images/MMUFCI.png') }}" class="footer-logo" alt="MMU FCI Logo">
+        
+        <p class="footer-info">
+            CSE6214 - SOFTWARE ENG FUNDAMENTALS - TT09GB - Multimedia University
+        </p>
+    </footer>
+
+</body>
+</html>

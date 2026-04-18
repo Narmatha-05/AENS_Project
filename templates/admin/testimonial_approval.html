@@ -1,0 +1,74 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Content Moderation | Admin{% endblock %}
+{% block page_title %}Content Moderation {% endblock %}
+{% block page_subtitle %}Review pending testimonials and approve or reject them.{% endblock %}
+
+{% block content %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ 'flash-error' if category == 'error' else 'flash-success' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Pending Testimonials</div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for t in testimonials %}
+          <tr>
+            <td style="font-weight:800;">{{ t['user_name'] }}</td>
+
+            <td style="color:#374151;">
+              “{{ t['content'] }}”
+            </td>
+
+            <td>
+              <span class="badge badge-yellow">Pending</span>
+            </td>
+
+            <td class="text-right">
+              <form method="POST"
+                    action="{{ url_for('admin.manage_testimonials') }}"
+                    style="display:inline-flex; gap:8px;">
+                <input type="hidden" name="id" value="{{ t['id'] }}">
+                <button type="submit" name="action" value="Approved" class="btn btn-primary btn-small">
+                  Approve
+                </button>
+                <button type="submit" name="action" value="Rejected" class="btn btn-danger btn-small">
+                  Reject
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" style="text-align:center; padding:20px; color:#6b7280;">
+              No pending testimonials.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% endblock %}

@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Edit / Remove Job | AENS</title>
-
-  <!-- Link your CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
 </head>
 <body>
 
@@ -15,62 +12,39 @@
   <div class="topbar">
     <div class="brand">
       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
-
       <div>
         <div class="brand-title">Alumni Engagement & Networking System</div>
         <div class="brand-subtitle">Career Services Officer</div>
       </div>
     </div>
-
-    <a href="#" class="topbar-link">Logout</a>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
   </div>
 
-  <!-- LAYOUT -->
   <div class="layout">
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
-
+   <div class="sidebar">
       <div class="sidebar-profile">
-        <div class="avatar">CS</div>
-        <div class="sidebar-name">Career Officer</div>
-        <div class="sidebar-role">Career Services Officer</div>
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
       </div>
 
-<div class="nav">
-  <a class="nav-item" href="/officer/dashboard">
-    <span class="nav-icon">🏠</span> Dashboard
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/create_job">
-    <span class="nav-icon">➕</span> Create Job
-  </a>
-
-  <a class="nav-item" href="/officer/jobs/edit_job">
-    <span class="nav-icon">✏️</span> Edit / Remove Job
-  </a>
-
-  <a class="nav-item" href="/officer/applications">
-    <span class="nav-icon">📄</span> Applications
-  </a>
-
-  <a class="nav-item" href="/officer/mentorship_review">
-    <span class="nav-icon">🤝</span> Mentorship
-  </a>
-
-  <a class="nav-item" href="/officer/notifications">
-    <span class="nav-icon">🔔</span> Notifications
-  </a>
-</div>
-
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('officer_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.create_job') }}"><span class="nav-icon">➕</span> Create Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.edit_job') }}"><span class="nav-icon">✏️</span> Edit / Remove Job</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.applications') }}"><span class="nav-icon">📄</span> Applications</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.mentorship_review') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.view_event_feedback') }}"><span class="nav-icon">📝</span> Event Feedback</a>
+        <a class="nav-item" href="{{ url_for('officer_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+      </div>
 
       <div class="sidebar-footer">
-        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">
-  Back to Dashboard
-</a>
-
+        <a class="btn btn-secondary btn-full" href="{{ url_for('officer_bp.dashboard') }}">Back to Dashboard</a>
       </div>
-
     </div>
 
     <!-- CONTENT -->
@@ -79,9 +53,7 @@
       <div class="content-header">
         <div>
           <div class="page-title">Edit / Remove Job Posting</div>
-          <div class="page-subtitle">
-            Select a job to edit details or remove the job posting. (Connect to Flask later)
-          </div>
+          <div class="page-subtitle">Select a job to edit details or remove the job posting.</div>
         </div>
       </div>
 
@@ -89,7 +61,7 @@
       <div class="card" style="margin-top: 18px;">
         <div class="card-header">
           <div class="card-title">All Job Postings</div>
-          <a class="link" href="create_job.html">+ Create New</a>
+          <a class="link" href="{{ url_for('officer_bp.create_job') }}">+ Create New</a>
         </div>
 
         <div class="table-wrap">
@@ -104,108 +76,134 @@
               </tr>
             </thead>
             <tbody>
+              {% if jobs %}
+                {% for j in jobs %}
+                  <tr>
+                    <td>{{ j["job_title"] }}</td>
+                    <td>{{ j["company"] }}</td>
+                    <td>{{ j["deadline"] }}</td>
+                    <td>
+                      {% if j["status"] == "Draft" %}
+                        <span class="badge badge-yellow">{{ j["status"] }}</span>
+                      {% else %}
+                        <span class="badge badge-green">{{ j["status"] }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-right">
+                      <!-- ✅ FIX: MUST use edit_id= not id= -->
+                      <a class="btn btn-secondary btn-small"
+                         href="{{ url_for('officer_bp.edit_job', edit_id=j['id']) }}#editForm">
+                        Edit
+                      </a>
 
-              <tr>
-                <td>Software Engineer Intern</td>
-                <td>TechNova</td>
-                <td>15 Feb 2026</td>
-                <td><span class="badge badge-green">Published</span></td>
-                <td class="text-right">
-                  <a class="btn btn-secondary btn-small" href="#editForm">Edit</a>
-                  <button class="btn btn-secondary btn-small" style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
-                    Remove
-                  </button>
-                </td>
-              </tr>
-
-              <tr>
-                <td>Data Analyst</td>
-                <td>InsightLab</td>
-                <td>18 Feb 2026</td>
-                <td><span class="badge badge-yellow">Draft</span></td>
-                <td class="text-right">
-                  <a class="btn btn-secondary btn-small" href="#editForm">Edit</a>
-                  <button class="btn btn-secondary btn-small" style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
-                    Remove
-                  </button>
-                </td>
-              </tr>
-
-              <tr>
-                <td>UI/UX Designer</td>
-                <td>PixelWorks</td>
-                <td>25 Feb 2026</td>
-                <td><span class="badge badge-green">Published</span></td>
-                <td class="text-right">
-                  <a class="btn btn-secondary btn-small" href="#editForm">Edit</a>
-                  <button class="btn btn-secondary btn-small" style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
-                    Remove
-                  </button>
-                </td>
-              </tr>
-
+                      <!-- ✅ FIX: your delete route is /jobs/delete/<job_id> -->
+                      <form action="{{ url_for('officer_bp.delete_job', job_id=j['id']) }}"
+                            method="POST" style="display:inline;">
+                        <button type="submit"
+                                class="btn btn-secondary btn-small"
+                                style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;"
+                                onclick="return confirm('Remove this job posting?');">
+                          Remove
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="5">No job postings yet.</td></tr>
+              {% endif %}
             </tbody>
           </table>
         </div>
-
-        <div class="hint">
-          Tip: In Flask, “Edit” should load the job details by job_id, and “Remove” should confirm deletion before deleting from database.
-        </div>
       </div>
 
-      <!-- EDIT FORM (SAME PAGE) -->
+      <!-- EDIT FORM -->
       <div class="card" id="editForm" style="margin-top: 14px;">
         <div class="card-header">
           <div class="card-title">Edit Selected Job</div>
-          <span class="link">Example form</span>
+          <span class="link">Loaded from database</span>
         </div>
 
-        <form class="form" action="#" method="post">
+        {% if selected_job %}
+        <form class="form"
+              action="{{ url_for('officer_bp.update_job', job_id=selected_job['id']) }}"
+              method="POST">
 
           <div class="grid-2">
             <div class="form-row">
               <div class="label">Job Title *</div>
-              <input class="input" type="text" name="job_title" value="Software Engineer Intern" required>
+              <input class="input" type="text" name="job_title"
+                    value="{{ selected_job['job_title'] }}" required>
             </div>
 
             <div class="form-row">
               <div class="label">Company *</div>
-              <input class="input" type="text" name="company" value="TechNova" required>
+              <input class="input" type="text" name="company"
+                    value="{{ selected_job['company'] }}" required>
             </div>
           </div>
 
           <div class="grid-2">
             <div class="form-row">
-              <div class="label">Deadline *</div>
-              <input class="input" type="date" name="deadline" required>
+              <div class="label">Job Type</div>
+              <input class="input" name="job_type"
+                    value="{{ selected_job['job_type'] }}">
             </div>
 
             <div class="form-row">
-              <div class="label">Status</div>
-              <select class="input" name="status">
-                <option value="Published" selected>Published</option>
-                <option value="Draft">Draft</option>
-              </select>
+              <div class="label">Deadline *</div>
+              <input class="input" type="date" name="deadline"
+                    value="{{ selected_job['deadline'] }}" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-row">
+              <div class="label">Location</div>
+              <input class="input" name="location"
+                    value="{{ selected_job['location'] }}">
+            </div>
+
+            <div class="form-row">
+              <div class="label">Salary</div>
+              <input class="input" name="salary"
+                    value="{{ selected_job['salary'] }}">
             </div>
           </div>
 
           <div class="form-row">
-            <div class="label">Job Description *</div>
-            <textarea class="input" name="description" rows="4" required>Write job description here...</textarea>
+            <div class="label">Description *</div>
+            <textarea class="input" name="description" required>{{ selected_job['description'] }}</textarea>
           </div>
 
           <div class="form-row">
             <div class="label">Requirements *</div>
-            <textarea class="input" name="requirements" rows="4" required>Write job requirements here...</textarea>
+            <textarea class="input" name="requirements" required>{{ selected_job['requirements'] }}</textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="label">Notes</div>
+            <textarea class="input" name="notes">{{ selected_job['notes'] }}</textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="label">Status</div>
+            <select class="input" name="status">
+              <option value="Published" {% if selected_job['status']=='Published' %}selected{% endif %}>Published</option>
+              <option value="Draft" {% if selected_job['status']=='Draft' %}selected{% endif %}>Draft</option>
+            </select>
           </div>
 
           <div class="form-actions">
-            <button type="reset" class="btn btn-secondary">Cancel</button>
+            <a class="btn btn-secondary" href="{{ url_for('officer_bp.edit_job') }}">Cancel</a>
             <button type="submit" class="btn btn-primary">Save Changes</button>
           </div>
 
         </form>
-      </div>
+        {% else %}
+          <p>Select a job from the table above to edit.</p>
+        {% endif %}
+      </div> <!-- ✅ CLOSE edit card properly -->
 
       <!-- FOOTER -->
       <div class="footer">

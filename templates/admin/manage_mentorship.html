@@ -1,0 +1,51 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Mentorship Requests | Admin{% endblock %}
+{% block page_title %}Approve Mentorship Requests{% endblock %}
+{% block page_subtitle %}Review mentorship requests and approve or reject.{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Pending Requests</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Student (Mentee)</th>
+          <th>Requested Mentor</th>
+          <th>Goal / Interest</th>
+          <th>Status</th>
+          <th class="text-right">Decision</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for r in requests %}
+        <tr>
+          <td style="font-weight:800;">{{ r['mentee'] }}</td>
+          <td>{{ r['mentor'] }}</td>
+          <td style="color:#374151;">{{ r['goal'] }}</td>
+          <td><span class="badge badge-yellow">Pending</span></td>
+          <td class="text-right">
+            <form method="POST" action="{{ url_for('admin.manage_mentorship') }}" style="display:inline-flex; gap:8px;">
+              <input type="hidden" name="id" value="{{ r['id'] }}">
+              <button class="btn btn-primary btn-small" name="action" value="approve">Approve</button>
+              <button class="btn btn-danger btn-small" name="action" value="reject">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align:center; padding:20px; color:#6b7280;">No pending requests.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Assign Roles | Admin{% endblock %}
+{% block page_title %}Assign User Roles{% endblock %}
+{% block page_subtitle %}Update a user's role by entering their email and selecting the new role.{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 900px;">
+  <form class="form" method="POST" action="{{ url_for('admin.assign_roles') }}">
+
+    <div class="form-row">
+      <label class="label">User Email</label>
+      <input class="input" type="email" name="email" placeholder="user@example.com" required>
+    </div>
+
+    <div class="form-row">
+      <label class="label">New Role</label>
+      <select class="input" name="role" required>
+        <option value="Student">Student</option>
+        <option value="Alumni">Alumni</option>
+        <option value="Career Officer">Career Services Officer</option>
+        <option value="Admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Update Role</button>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

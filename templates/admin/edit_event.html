@@ -1,0 +1,102 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Edit Event | Admin{% endblock %}
+{% block page_title %}Edit Event{% endblock %}
+{% block page_subtitle %}Update event details and poster.{% endblock %}
+
+{% block content %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ 'flash-error' if category == 'error' else 'flash-success' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <form action="{{ url_for('admin.edit_event', event_id=event['id']) }}" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="current_image" value="{{ event['image_path'] }}">
+
+      <div class="form-row">
+        <label class="form-label">Event Name</label>
+        <input type="text" name="name" value="{{ event['title'] }}" class="input" required>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Type</label>
+        <input type="text" name="type" value="{{ event['type'] }}" class="input" required>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Current Poster</label>
+        {% if event['image_path'] %}
+          <img src="{{ url_for('static', filename='images/' + event['image_path']) }}"
+               style="display:block; margin:10px 0; width:100%; max-width:300px; border-radius:12px; border:1px solid #e5e7eb;">
+        {% endif %}
+        <input type="file" name="image" class="input" accept="image/*">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Date</label>
+        <input type="date" id="eventDate" name="date" value="{{ event['event_date'] }}" class="input" required>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Start Time</label>
+        <input type="time" id="startTime" name="start" value="{{ event['start_time'] }}" class="input" required>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">End Time</label>
+        <input type="time" id="endTime" name="end" value="{{ event['end_time'] }}" class="input" required>
+      </div>
+
+      <div class="form-group">
+      <label>Location</label>
+      <input type="text" name="location" value="{{ event['location'] }}" class="form-control" required>
+    </div>
+
+
+      <div class="form-row">
+        <label class="form-label">Price (RM)</label>
+        <input type="text" name="price" value="{{ event['price'] }}" class="input">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Description</label>
+        <textarea name="info" class="input" style="min-height:120px;">{{ event['description'] }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+  </div>
+
+  <script>
+    const dateInput = document.getElementById('eventDate');
+    const startInput = document.getElementById('startTime');
+    const endInput = document.getElementById('endTime');
+
+    dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+
+    startInput.addEventListener('change', function() {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      if (dateInput.value === todayStr) {
+        const curTime = now.toTimeString().slice(0,5);
+        if (this.value < curTime) {
+          alert("⚠️ Error: Cannot select a time in the past!");
+          this.value = "";
+        }
+      }
+    });
+
+    endInput.addEventListener('change', function() {
+      if (startInput.value && this.value <= startInput.value) {
+        alert("⚠️ Error: End time must be LATER than start time!");
+        this.value = "";
+      }
+    });
+  </script>
+{% endblock %}

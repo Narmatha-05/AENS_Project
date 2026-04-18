@@ -1,0 +1,34 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Publish Announcement | Admin{% endblock %}
+{% block page_title %}Publish Event Announcement{% endblock %}
+{% block page_subtitle %}Select an event and publish an announcement to the news feed.{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <form method="POST" action="{{ url_for('admin.publish_announcement') }}">
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Select Event</label>
+        <select name="event_id" class="form-control" required>
+          <option value="">-- Select Event --</option>
+          {% for e in events %}
+            <option value="{{ e['id'] }}">{{ e['title'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Announcement Message</label>
+      <textarea name="message" class="form-control" rows="5"
+        placeholder="e.g. Early bird tickets are closing soon!" required></textarea>
+    </div>
+
+    <button class="btn btn-primary">Publish to News Feed</button>
+  </form>
+</div>
+
+{% endblock %}

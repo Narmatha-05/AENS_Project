@@ -1,0 +1,51 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Remove Content | Admin{% endblock %}
+{% block page_title %}Remove Inappropriate Content{% endblock %}
+{% block page_subtitle %}Review flagged items and take action.{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Flagged Content</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Posted By</th>
+          <th>Content Preview</th>
+          <th>Reason</th>
+          <th class="text-right">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for item in flagged_items %}
+        <tr>
+          <td style="font-weight:800;">{{ item['type'] }}</td>
+          <td>{{ item['posted_by'] }}</td>
+          <td style="color:#374151;">{{ item['preview'] }}</td>
+          <td><span class="badge badge-red">{{ item['reason'] }}</span></td>
+          <td class="text-right">
+            <form method="POST" action="{{ url_for('admin.remove_content') }}" style="display:inline-flex; gap:8px;">
+              <input type="hidden" name="id" value="{{ item['id'] }}">
+              <button class="btn btn-danger btn-small" name="action" value="remove">Remove</button>
+              <button class="btn btn-secondary btn-small" name="action" value="ignore">Ignore</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align:center; padding:20px; color:#6b7280;">No flagged content.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

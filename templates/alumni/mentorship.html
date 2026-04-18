@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentorship Requests | Alumni</title>
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f4f7f6;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Topbar Styling */
+    .topbar {
+      background-color: #6d9775;
+      padding: 12px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .brand-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #ffffff;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: #ffffff; /* Your Green */
+      font-weight: 600;
+    }
+
+    .topbar-link {
+      text-decoration: none;
+      color: #e74c3c;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Layout & Centering */
+    .layout {
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 1000px; /* Wider for table data */
+    }
+
+    .content-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      color: #2c3e50;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: #7f8c8d;
+      font-size: 1rem;
+    }
+
+    /* Card & Table Styling */
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #e0e0e0;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .table th {
+      text-align: left;
+      background-color: #f8faf9;
+      padding: 15px;
+      color: #555;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      border-bottom: 2px solid #6d9775; /* Accent line */
+    }
+
+    .table td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+      font-size: 0.95rem;
+    }
+
+    /* Button Styling */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background-color: #6d9775; /* Your Green */
+      color: white;
+      margin-right: 5px;
+    }
+
+    .btn-primary:hover {
+      background-color: #5a7d61;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background-color: #fff;
+      color: #7f8c8d;
+      border: 1px solid #dcdde1;
+    }
+
+    .btn-secondary:hover {
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    .btn-back {
+      margin-top: 30px;
+      display: block;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hint {
+      text-align: center;
+      color: #95a5a6;
+      padding: 40px !important;
+    }
+
+    /* Status Tags */
+    .status-pending {
+      color: #d68910;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" height="40">
+    <div>
+      <div class="brand-title">Alumni Engagement & Networking System</div>
+      <div class="brand-subtitle">Alumni Portal</div>
+    </div>
+  </div>
+  <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+</div>
+
+<div class="layout">
+  <div class="content">
+
+    <div class="content-header">
+      <div>
+        <h1 class="page-title">Mentorship Requests</h1>
+        <p class="page-subtitle">Review and manage students requesting your guidance</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Goals</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% if requests %}
+              {% for r in requests %}
+              <tr>
+                <td style="font-weight: 700;">{{ r["student_name"] or r["student_username"] }}</td>
+                <td>{{ r["goals"] }}</td>
+                <td style="color: #666; font-size: 0.9rem;">{{ r["reason"] }}</td>
+                <td>
+                    <span class="{% if r['status'] == 'Pending' %}status-pending{% endif %}">
+                        {{ r["status"] }}
+                    </span>
+                </td>
+                <td>
+                  {% if r["status"] == "Pending" %}
+                    <form method="POST" action="{{ url_for('alumni_bp.approve_mentorship', req_id=r['id']) }}" style="display:inline;">
+                      <button class="btn btn-primary">Approve</button>
+                    </form>
+
+                    <form method="POST" action="{{ url_for('alumni_bp.reject_mentorship', req_id=r['id']) }}" style="display:inline;">
+                      <button class="btn btn-secondary">Reject</button>
+                    </form>
+                  {% else %}
+                    <span style="color: #bdc3c7;">Processed</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5" class="hint">No mentorship requests currently in your queue.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <a href="{{ url_for('alumni_bp.dashboard') }}" class="btn btn-secondary btn-back">
+      &larr; Back to Dashboard
+    </a>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Approve Users | Admin{% endblock %}
+{% block page_title %}Approve New Users {% endblock %}
+{% block page_subtitle %}Review pending registrations and approve or reject them.{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Pending Approvals</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name / Email</th>
+          <th>Role Requested</th>
+          <th>Status</th>
+          <th class="text-right">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>
+            <div style="font-weight:800;">
+              {{ user['name'] if user.get('name') else (user.get('full_name') or user.get('username') or 'Unknown') }}
+            </div>
+            <div style="color:#6b7280; font-size:12px;">
+              {{ user.get('email','') }}
+            </div>
+          </td>
+
+          <td>{{ user.get('role','Pending') }}</td>
+
+          <td>
+            <span class="badge badge-yellow">
+              {{ user.get('status','Pending') }}
+            </span>
+          </td>
+
+          <td class="text-right">
+            <form method="POST" action="{{ url_for('admin.approve_users') }}" style="display:inline-flex; gap:8px;">
+              <input type="hidden" name="user_id" value="{{ user.get('id') }}">
+              <button type="submit" name="action" value="approve" class="btn btn-primary btn-small">Approve</button>
+              <button type="submit" name="action" value="reject" class="btn btn-secondary btn-small">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" style="text-align:center; padding:20px; color:#6b7280;">
+            No pending approvals.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

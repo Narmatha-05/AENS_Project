@@ -1,0 +1,106 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Admin Dashboard | AENS{% endblock %}
+{% block page_title %}System Overview{% endblock %}
+{% block page_subtitle %}Quick view of users, approvals, events, and feedback.{% endblock %}
+
+{% block content %}
+
+<div class="stats">
+  <div class="card stat-card">
+    <div class="stat-label">Total Active Users</div>
+    <div class="stat-value">{{ users }}</div>
+    <div class="stat-hint">Active accounts</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Pending Approvals</div>
+    <div class="stat-value">{{ pending_users }}</div>
+    <div class="stat-hint">Awaiting review</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Active Events</div>
+    <div class="stat-value">{{ events }}</div>
+    <div class="stat-hint">Published</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Pending Feedback</div>
+    <div class="stat-value">{{ feedback }}</div>
+    <div class="stat-hint">Needs action</div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px;">
+  <div class="card-header">
+    <div class="card-title">Recent User Activity</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th><th>Role</th><th>Status</th><th>Phone</th><th>Joined Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in recent_users %}
+        <tr>
+          <td>
+            <div style="font-weight:800;">{{ user['name'] }}</div>
+            <div style="color:#6b7280; font-size:12px;">{{ user['email'] }}</div>
+          </td>
+          <td>{{ user['role'] }}</td>
+          <td>
+            {% set s = (user['status'] or 'Active')|lower %}
+            <span class="badge {{ 'badge-green' if s=='active' else 'badge-yellow' }}">{{ user['status'] }}</span>
+          </td>
+          <td>{{ user['phone_number'] or 'N/A' }}</td>
+          <td>{{ user['joined_date'] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center; color:#6b7280;">No recent activity found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px;">
+  <div class="card-header">
+    <div class="card-title">Upcoming Events</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Image</th><th>Event Title</th><th>Date</th><th>Location</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events_list %}
+        <tr>
+          <td>
+            {% if event['image_path'] %}
+              <img src="{{ url_for('static', filename='images/' + event['image_path']) }}"
+                   style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;">
+            {% else %}
+              <span style="color:#9ca3af;font-size:12px;">No Img</span>
+            {% endif %}
+          </td>
+          <td style="font-weight:800;">{{ event['title'] }}</td>
+          <td>{{ event['display_date'] }}</td>
+          <td>{{ event['location'] }}</td>
+          <td><span class="badge badge-green">Published</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center; color:#6b7280;">No upcoming events found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

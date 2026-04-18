@@ -1,0 +1,43 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Feedback | Admin{% endblock %}
+{% block page_title %}System Feedback{% endblock %}
+{% block page_subtitle %}Review user feedback and mark as handled.{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Feedback Inbox</div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:14px;">
+    {% for f in feedback_list %}
+      <div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px;">
+        <div style="display:flex; justify-content:space-between; gap:12px;">
+          <div style="font-weight:800;">Subject: {{ f['subject'] }}</div>
+          <div class="text-muted">{{ f['date'] }}</div>
+        </div>
+
+        <div style="margin-top:6px; color:#374151;">
+          “{{ f['message'] }}”
+        </div>
+
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <form method="POST" action="{{ url_for('admin.manage_feedback') }}">
+            <input type="hidden" name="id" value="{{ f['id'] }}">
+            <button class="btn btn-primary btn-small" name="action" value="reviewed">Mark as Reviewed</button>
+          </form>
+
+          <a class="btn btn-outline btn-small" href="{{ url_for('admin.reply_feedback', feedback_id=f['id']) }}">
+            Reply
+          </a>
+        </div>
+      </div>
+    {% else %}
+      <div style="text-align:center; padding:20px; color:#6b7280;">No feedback yet.</div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

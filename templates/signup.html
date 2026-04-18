@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | AENS</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* TOP SECTION: SPLIT DESIGN (75vh height) */
+        .auth-container {
+            display: flex;
+            height: 75vh;
+            width: 100%;
+        }
+
+        /* Left Green Panel */
+        .auth-left {
+            flex: 1.2;
+            background-color: #76a07b; 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .auth-logo {
+            width: 130px;
+            margin-bottom: 20px;
+        }
+
+        .auth-left h1 {
+            font-size: 2rem;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .hashtag {
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* Right Register Panel */
+        .auth-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-box {
+            width: 400px;
+        }
+
+        .register-box h2 {
+            color: #76a07b;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        /* Form Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        /* Make Full Name and Role span full width if desired, 
+           or keep everything stacked for clarity like the original design */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: #f2f2f2;
+            border: none;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-register {
+            background-color: #76a07b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .login-prompt {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .login-prompt a {
+            color: #76a07b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* MIDDLE SECTION: SMALLER BANNER */
+        .banner-container {
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .banner-frame {
+            width: 60%;
+            max-width: 700px;
+            border: 1px solid #e8e8e8;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .banner-frame img {
+            width: 100%;
+            display: block;
+        }
+
+        /* FOOTER SECTION */
+        .footer {
+            border-top: 1px solid #eee;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-nav {
+            margin-bottom: 20px;
+        }
+
+        .footer-nav a {
+            text-decoration: none;
+            color: #777;
+            margin: 0 30px;
+            font-size: 0.85rem;
+        }
+
+        .footer-logo {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+
+        .footer-info {
+            font-size: 0.7rem;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flash {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="auth-logo" alt="AENS Logo">
+            <h1>Alumni Engagement &<br>Networking System</h1>
+            <p class="hashtag">#Our Legacy, Your Future</p>
+        </div>
+
+        <div class="auth-right">
+            <div class="register-box">
+                <h2>Create Account</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, msg in messages %}
+                      <div class="flash">{{ msg }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('signup') }}">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" name="full_name" placeholder="e.g. Amir Student" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" name="username" placeholder="e.g. amir123" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Create a password" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Role</label>
+                        <select name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="Student">Student</option>
+                            <option value="Alumni">Alumni</option>
+                            <option value="Officer">Career Services Officer</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-register">Create Account</button>
+                </form>
+
+                <p class="login-prompt">
+                    Already have an account? <a href="{{ url_for('login') }}">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="banner-container">
+        <div class="banner-frame">
+            <img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="Promo Banner">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <nav class="footer-nav">
+            <a href="#">About</a>
+            <a href="#">FAQ</a>
+            <a href="#">Contact</a>
+        </nav>
+
+        <img src="{{ url_for('static', filename='images/MMUFCI.png') }}" class="footer-logo" alt="MMU FCI Logo">
+        
+        <p class="footer-info">
+            CSE6214 - SOFTWARE ENG FUNDAMENTALS - TT09GB - Multimedia University
+        </p>
+    </footer>
+
+</body>
+</html>

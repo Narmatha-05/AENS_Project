@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Details | AENS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AENS Logo" height="40">
+      <div>
+        <div class="brand-title">Alumni Engagement & Networking System</div>
+        <div class="brand-subtitle">Student</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="topbar-link">Logout</a>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar">
+          {{ (current_user.full_name[0] if current_user.full_name else current_user.username[0])|upper }}
+        </div>
+        <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+        <div class="sidebar-role">{{ current_user.role }}</div>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item" href="{{ url_for('student_bp.dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item" href="{{ url_for('student_bp.notifications') }}"><span class="nav-icon">🔔</span> Notifications</a>
+        <a class="nav-item active" href="{{ url_for('student_bp.mentorship') }}"><span class="nav-icon">🤝</span> Mentorship</a>
+        <a class="nav-item" href="{{ url_for('student_bp.events') }}"><span class="nav-icon">📅</span> Events</a>
+        <a class="nav-item" href="{{ url_for('student_bp.jobs') }}"><span class="nav-icon">💼</span> Job</a>
+        <a class="nav-item" href="{{ url_for('student_bp.profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-full" href="{{ url_for('student_bp.mentorship') }}">Back to Mentors</a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="content-header">
+        <div>
+          <div class="page-title">Mentor Details</div>
+          <div class="page-subtitle">
+            View mentor profile and manage your mentorship request status.
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:18px;">
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div style="margin-bottom:14px;">
+              {% for category, msg in messages %}
+                <div class="hint {{ category }}" style="margin-bottom:10px;">
+                  {{ msg }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+      </div>
+
+      <!-- DETAILS CARD -->
+      <div class="card" style="margin-top:18px; overflow:hidden;">
+
+        <!-- Banner -->
+        <div style="height:140px; background:rgba(16,185,129,0.25);"></div>
+
+        <!-- Profile area -->
+        <div style="padding:18px 18px 6px 18px; margin-top:-55px;">
+          <div style="display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap;">
+
+            <!-- Avatar -->
+            <div style="
+              width:110px; height:110px;
+              background:#111827; color:white;
+              border:4px solid white; border-radius:999px;
+              display:flex; align-items:center; justify-content:center;
+              font-size:44px; font-weight:800;
+              ">
+              {{ (mentor["username"][0] if mentor["username"] else "M")|upper }}
+            </div>
+
+            <!-- Basic info -->
+            <div style="flex:1; min-width:240px;">
+              <div style="font-size:26px; font-weight:800; margin-bottom:4px;">
+                {{ mentor["full_name"] if mentor["full_name"] else mentor["username"] }}
+              </div>
+
+              <div style="color:#065f46; font-weight:700;">
+                {{ mentor["role"] }}
+              </div>
+
+              <div style="color:#6b7280; margin-top:6px;">
+                {{ mentor["headline"] if mentor["headline"] else "Alumni Mentor • MMU" }}
+              </div>
+            </div>
+
+            <!-- ✅ Action box (ONLY FIXED THIS PART) -->
+            <div style="min-width:260px;">
+
+              {% if status == "Pending" %}
+                <div class="hint" style="border-left:6px solid #f59e0b;">
+                  <b>Status:</b> Pending approval.
+                  <div style="margin-top:10px;">
+                    <form method="POST"
+                          action="{{ url_for('student_bp.cancel_request', mentor_id=mentor['id']) }}"
+                          style="display:inline;">
+                      <button type="submit" class="btn btn-secondary btn-small"
+                              style="border:1px solid rgba(225,29,72,0.25); color:#e11d48;">
+                        Cancel
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+              {% elif status in ["Approved", "Assigned", "Accepted"] %}
+                <div class="hint" style="border-left:6px solid #16a34a;">
+                  <b>Status:</b> {{ status }} ✅
+                  <div style="margin-top:6px;">Your request is already {{ status|lower }}.</div>
+                  <div style="margin-top:10px;">
+                    <button type="button" class="btn btn-secondary btn-small" disabled>
+                      Requested
+                    </button>
+                  </div>
+                </div>
+
+              {% elif status == "Rejected" %}
+                <div class="hint" style="border-left:6px solid #dc2626;">
+                  <b>Status:</b> Rejected.
+                  <div style="margin-top:10px;">
+                    <form method="POST"
+                          action="{{ url_for('student_bp.request_mentor', mentor_id=mentor['id']) }}"
+                          onsubmit="return confirm('Send mentorship request again?');">
+                      <button type="submit" class="btn btn-primary btn-small">
+                        Request Again
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+              {% else %}
+                <div class="hint" style="border-left:6px solid #0284c7;">
+                  <b>Status:</b> Not requested yet.
+                  <div style="margin-top:10px;">
+                    <form method="POST"
+                          action="{{ url_for('student_bp.request_mentor', mentor_id=mentor['id']) }}"
+                          onsubmit="return confirm('Send mentorship request to this mentor?');">
+                      <button type="submit" class="btn btn-primary btn-small">
+                        Request Mentorship
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% endif %}
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- About + Skills -->
+        <div style="padding:18px;">
+          <div class="card" style="margin-top:10px;">
+            <div class="card-header">
+              <div class="card-title">About</div>
+              <span class="link">Database</span>
+            </div>
+            <div style="padding:16px; color:#374151; line-height:1.7;">
+              {{ mentor["bio"] if mentor["bio"] else "This mentor has not added a bio yet." }}
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px;">
+            <div class="card-header">
+              <div class="card-title">Expertise</div>
+              <span class="link">Database</span>
+            </div>
+
+            <div style="padding:16px; display:flex; gap:10px; flex-wrap:wrap;">
+              {% if mentor["skills"] %}
+                {% for skill in mentor["skills"].split(",") %}
+                  <span class="badge" style="background:rgba(16,185,129,0.12); color:#065f46;">
+                    {{ skill.strip() }}
+                  </span>
+                {% endfor %}
+              {% else %}
+                <span class="badge" style="background:rgba(2,132,199,0.12); color:#075985;">
+                  General Mentorship
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <span>© AENS - TT9L Group 8</span>
+        <span>CSE6214 Software Engineering Fundamentals</span>
+      </div>
+
+      <div class="mmu-footer">
+        Multimedia University | Faculty of Computing & Informatics
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
